@@ -79,11 +79,11 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{abstract}
 
-Current and next--generation wide--field, ground--based optical surveys, like PanSTARRs, DES, and LSST, will survey large 
+Current and next--generation wide--field, ground--based optical surveys, like PanSTARRS, DES, and LSST, will survey large 
 portions of the sky to limiting magnitudes of $r \gtrsim 24$.  The problem of source classification, particularly that of separating 
 stars from galaxies, is severe at such depths since the number of unresolved galaxies quickly overwhelm halo star counts.  
 We investigate the advantages and shortcomings of various photometric classification techniques using COSMOS 
-$ugriz$ data, focusing on the most unresolved objects (full width half maxima $<0.2''$).  We consider two broad classes of 
+$ugriz$ data, focusing on the most unresolved objects (intrinsic full width half maxima $<0.2''$).  We consider two broad classes of 
 probabilistic classification approaches, spectral energy distribution template fitting and data--driven Support Vector Machine 
  (SVM) techniques.  For template fitting, we investigate Maximum Likelihood (ML) methods and present a new Hierarchical Bayesian 
 (HB) method, in which we learn the prior distribution of template probabilities by optimizing the likelihood for the entire dataset.  
@@ -231,7 +231,7 @@ By Bayes' theorem, the act marginalization requires we specify the prior probabi
 that any object might have a given SED template (at a given redshift).  These 
 distributions might be chosen to be uninformative (e.g., flat), informed by knowledge 
 from outside studies, or informed by the data themselves.   The latter approach, 
-referred to as a hierarchical model, is widely used in Statistics \citep[e.g.,][]{gelman03} and is 
+referred to as a hierarchical model, is widely used in statistical data analysis \citep[e.g.,][]{gelman03} and is 
 beginning to be used in Astronomy \citep{shu12}.  The benefits of hierarchical 
 approaches are many -- they have been shown to increase probabilistic performance 
 \rf{Need cites -- Hogg, any suggestions???}, and require no additional knowledge outside the given data.  Functionally, 
@@ -253,7 +253,7 @@ A support vector machine (SVM) is a type of machine learning algorithm particula
 well suited to the problem of classification.  SVM algorithms are frequently used in 
 non-astronomical problems, and are considered the gold standard for any new 
 classification methods developed by machine learners.  A SVM has recently been 
-applied to the problem of source classification in the PanSTARRs photometric pipeline 
+applied to the problem of source classification in the PanSTARRS photometric pipeline 
 \citep{saglia12}, though on very high signal to noise data (SDSS DR8, $r\lesssim19$).  Here, 
 we consider the utility and performance of SVM algorithms in a new classification regime, 
 where the data is of lower signal to noise (described in Section \ref{sec:data}), and the 
