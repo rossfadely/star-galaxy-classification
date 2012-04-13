@@ -79,32 +79,42 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{abstract}
 
-Current and next--generation wide--field, ground--based optical surveys, like PanSTARRS, DES, and LSST, will survey large 
-portions of the sky to limiting magnitudes of $r \gtrsim 24$.  The problem of source classification, particularly that of separating 
-stars from galaxies, is severe at such depths since the number of unresolved galaxies quickly overwhelm halo star counts.  
-We investigate the advantages and shortcomings of various photometric classification techniques using COSMOS 
-$ugriz$ data, focusing on the most unresolved objects (intrinsic full width half maxima $<0.2''$).  We consider two broad classes of 
-probabilistic classification approaches, spectral energy distribution template fitting and data--driven Support Vector Machine 
- (SVM) techniques.  For template fitting, we investigate Maximum Likelihood (ML) methods and present a new Hierarchical Bayesian 
-(HB) method, in which we learn the prior distribution of template probabilities by optimizing the likelihood for the entire dataset.  
-SVM approaches require a set of training data to classify unknown sources.  We consider an optimistic, best--case scenario 
-(SVM$_{best}$), where the training data is a random sampling of the data in question.  In addition, we consider the scenario 
-where the SVM is trained only using the highest signal--to--noise (S/N) data (SVM$_{high\,S/N}$).  We find that our HB method 
-generally outperforms ML approaches, and delivers $\sim80\%$ completeness in both star and galaxy samples, with purity 
-of $\sim40-90\%$ and $\sim70-90\%$ for stars and galaxies, respectively, depending on the sample fraction.  We using the 
-Receiver Operating Characteristic curve to assess the relative performance of the approaches, focusing on the Area Under 
-the Curve (AUC) statistic.  We find AUC values of 0.92, 0.88, 0.84, 0.77 for SVM$_{best}$, HB, ML, and SVM$_{high\,S/N}$.  
-We conclude, therefore, that a well trained SVM will outperform the template fitting methods examined here.  However, if 
-trained on data with high S/N, SVMs perform worse than template fitting.  Thus, HB template fitting may prove to be a useful and 
-important method for source classification in future surveys.
+  Current and next--generation wide--field, ground--based optical
+  surveys, like PanSTARRS, DES, and LSST, will survey large portions
+  of the sky to limiting magnitudes of $r \gtrsim 24$.  The problem of
+  source classification, particularly that of separating stars from
+  galaxies, is severe at such depths since the number of unresolved
+  galaxies quickly overwhelm halo star counts.  We investigate the
+  advantages and shortcomings of various photometric classification
+  techniques using COSMOS $ugriz$ data, focusing on the most
+  unresolved objects (intrinsic full width half maxima $<0.2''$).  We
+  consider two broad classes of probabilistic classification
+  approaches, spectral energy distribution template fitting and
+  data--driven Support Vector Machine (SVM) techniques.  For template
+  fitting, we investigate Maximum Likelihood (ML) methods and present
+  a new Hierarchical Bayesian (HB) method, in which we learn the prior
+  distribution of template probabilities by optimizing the likelihood
+  for the entire dataset.  SVM approaches require a set of training
+  data to classify unknown sources.  We consider an optimistic,
+  best--case scenario (SVM$_{best}$), where the training data is a
+  random sampling of the data in question.  In addition, we consider
+  the scenario where the SVM is trained only using the highest
+  signal--to--noise (S/N) data (SVM$_{high\,S/N}$).  We find that our
+  HB method generally outperforms ML approaches, and delivers
+  $\sim80\%$ completeness in both star and galaxy samples, with purity
+  of $\sim40-90\%$ and $\sim70-90\%$ for stars and galaxies,
+  respectively, depending on the sample fraction.  We using the
+  Receiver Operating Characteristic curve to assess the relative
+  performance of the approaches, focusing on the Area Under the Curve
+  (AUC) statistic.  We find AUC values of 0.92, 0.88, 0.84, 0.77 for
+  SVM$_{best}$, HB, ML, and SVM$_{high\,S/N}$.  We conclude,
+  therefore, that a well trained SVM will outperform the template
+  fitting methods examined here.  However, if trained on data with
+  high S/N, SVMs perform worse than template fitting.  Thus, HB
+  template fitting may prove to be a useful and important method for
+  source classification in future surveys.
 
 \end{abstract}
-
-
-
-
-
-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -114,24 +124,136 @@ important method for source classification in future surveys.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
 
+Until now, the primary way that stars and galaxies have been
+classified in large sky surveys has been a morphological separation
+\citep[e.g.,][]{kron80,yee91,vasconcellos11a,henrion11a} of point
+sources (presumably stars) from resolved sources (presumably
+galaxies).  At bright apparent magnitudes, relatively few galaxies
+will contaminate a point source catalog and relatively few stars will
+contaminate a resolved source catalog, making morphology a sufficient
+metric for classification.  However, resolved stellar science in the
+current and next generation of wide-field, ground-based surveys is
+being challenged by the vast number of unresolved galaxies at faint
+apparent magnitudes.  
+
+To demonstrate this challenge for studies of the field Milky Way (MW),
+we compare the number of stars to the number of unresolved galaxies at
+faint apparent magnitudes.  Figure~\ref{fig:stellarfraction} shows the
+fraction of COSMOS sources that are stars as a function of $r$
+magnitude.  The COSMOS catalog \citep[($l,b$) $\sim$ (237,43)
+degrees][]{capak07a,scoville07,ilbert09} relies on 30-band photometry
+plus HST/ACS morphology for source classification (see Section 4 for
+details).  Each colored line shows a different minimum intrinsic
+full-width half max (FWHM, as measured with HST/ACS imaging) that a
+source must have to be resolved.
+
 \begin{figure}
 \centering
-\includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{stellar_fraction.pdf}
-\caption{The stellar fraction of COSMOS sources as a function of magnitude, for sources with $g-r<1$ (left) and $g-r>1$ 
-(right).  Colored curves indicate the upper limit in intrinsic full--width half--maximum (FWHM) allowed in the sample.  
-Considering sources with FWHM $<0.2''$, red sources are only $\sim20-60\%$ stars, while blue sources are $<40\%$ 
-stars even at apparent magnitudes of $r=22.5$.}
+\includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{stellar_fraction_smallfwhm.pdf}
+\caption{The stellar fraction of COSMOS sources as a function of
+  magnitude, for sources with $g-r<1$ (left) and $g-r>1$ (right).
+  Only stars and galaxies were included in this figure; Only a few
+  percent of the COSMOS point sources are AGN.  Colored curves
+  indicate the upper limit in intrinsic full--width half--maximum
+  (FWHM) allowed in the sample.  Even in an optimistic scenario where
+  galaxies with FWHM $\gtrsim$0.2'' can be morphologically distinguished
+  from stars, unresolved galaxies will far outnumber stars in point
+  source catalogs at faint magnitudes.  This challenge is much greater
+  for blue stars than for red stars.}
 \label{fig:stellarfraction}
 \end{figure}
 
 
+We separately consider relatively bluer ($g-r < 1.0$) and redder ($g-r
+> 1.0$) sources.  Bluer stars are representative of the old,
+metal-poor main sequence turnoff (MSTO) stars generally used to trace
+the MW's halo while redder stars are representative of the
+intrinsically fainter red dwarf stars generally used to trace the MW's
+disk.  We will see that the effect of unresolved galaxies on these two
+populations is different, both because of galaxy demographics and
+because the number density of halo MSTO stars decreases at faint
+magnitudes while the number density of disk red dwarf stars increases at
+faint magnitudes.
+ 
+In an optimistic scenario where galaxies with FWHM $\gtrsim$0.2'' can
+be morphologically resolved (the light blue line in
+Figure~\ref{fig:stellarfraction}, third from the top), unresolved
+galaxies will still greatly outnumber field MW stars in a point source
+catalog.  For studies of blue stars, field star counts are dominated
+by unresolved galaxies by $r\sim22.5$ and are devastated by unresolved
+galaxies at fainter magnitudes. The problem is far less severe for
+studies of red stars, which may dominate point source counts for
+$r\lesssim24$. Although morphological identification of galaxies with
+FWHM as small as 0.2'' is better than possible the Sloan Digital Sky
+Survey, which had a median seeing of $\sim$1.3'', future surveys with
+higher median image quality (e.g. 0.7'' predicted for LSST) may
+approach this limit.
+
+Utilizing the fundamental differences between SEDs of stars and
+galaxies can mitigate the contamination of unresolved galaxies in
+point source catalogs.  In general, stellar SEDs are more sharply
+peaked (close to blackbody) than galaxies, which exhibit fluxes more
+broadly distributed across wavelength.  Traditionally, color-color
+cuts have been used to eliminate galaxies from point source catalogs
+\citep[e.g.][]{gould92a,reitzel98a,daddi04a}.  Advantages of the
+color-color approach include its simple implementation and its
+flexibility to be tailored to the goals of individual studies.
+Disadvantages of this approach include its disregard for A and B.
+
+Probabalistic algorithms offer a more general and informative approach
+to photometric classification.  The goal of probabalistic photometric
+classification of an astronomical source is to use its observed fluxes
+$\datavector{F}$ to compute the likelihood that the object is of a
+given type.  For example, a star ($S$) galaxy ($G$) classification
+algorithm produces the likelihoods $p(\datavector{F}|S)$ and
+$p(\datavector{F}|G)$ and decides classification by comparing the
+ratio of the likelihoods -
+
+\begin{eqnarray}\displaystyle
+\Omega = \frac{p(\datavector{F}|S)}{p(\datavector{F}|G)} 
+\quad ,
+\label{eqn:oddsratio}
+\end{eqnarray}
+
+\noindent A natural classification threshold is an odds ratio,
+$\Omega$, of 1, which may be modified to obtain more pure or more
+complete samples.
+
+Algorithmically there are a large number of approaches which produce
+probabilistic classifications.  Generally, these fall into i)
+physically based methods - those which have theoretical or empirical
+models for what type of physical object a source is, or ii) data
+driven methods - those which use real data with known classifications
+to construct a model for new data.  Bayesian and $\chi^2$ template
+fitting methods have been extensively used to infer the properties of
+galaxies \citep[e.g.][]{coil04a, ilbert09, xia09,
+  walcher11a,hildebrandt10}. But relatively little attention has been
+paid to stars which contribute marginally to overall source counts
+(although see \citealt{robin07}).  Several groups have recently
+investigated data driven, support vector machine based star-galaxy
+separation algorithms \citep[e.g.][]{saglia12,solarz12,tsalmantza12a}.
+
+In this paper, we describe, test, and compare two physically based
+template fitting approaches to star-galaxy separation
+(maximum-likelihood and hierarchical bayesian), and one data driven
+(support vector machine) approach.  In Section 2, we present the
+conceptual basis for each of the three methods.  In Section
+\ref{sec:specifics}, we discuss the specific details, choices, and
+assumptions made for each of our classification methods.  In Section
+4, we describe the COSMOS data set with which we test the algorithms.
+Finally, in Section \ref{sec:results} we show the performance of the
+algorithms, and discuss the advantages and limitations related to
+their use as classifiers.
+
 \begin{figure}
 \centering
 \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{Cosmos_data_colorcolor_225r25_hist.pdf}
-\caption{The color--color space distribution of point sources (FWHM $< 0.2''$) in the COSMOS catalog.  
-It is clear that stars in the sample follow a tight locus in all slices of color--color space, while galaxies are 
-more generally distributed.  Even so, comparison by eye reveals significant overlap between stars and 
-galaxies, particularly for bluer sources.}
+\caption{The color--color space distribution of point sources (FWHM $<
+  0.2''$) in the COSMOS catalog.  It is clear that stars in the sample
+  follow a tight locus in all slices of color--color space, while
+  galaxies are more generally distributed.  Even so, comparison by eye
+  reveals significant overlap between stars and galaxies, particularly
+  for bluer sources.}
 \label{fig:color-color-data}
 \end{figure}
 
@@ -141,37 +263,8 @@ galaxies, particularly for bluer sources.}
 % 					Section - Methodology
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Probabilistic Photometric Classification}
+\section{Probabilistic Photometric Classification Techniques}
 
-The goal of photometric classification of an astronomical source is 
-to convert the input flux data $\datavector{F}$ into a likelihood that 
-the object is of a given type (considered a star $S$ or a galaxy $G$ 
-here).  That is, the classification algorithm produces the 
-likelihoods $p(\datavector{F}|S)$ and $p(\datavector{F}|G)$ and 
-decides classification by comparing the ratio of the likelihoods - 
-
-\begin{eqnarray}\displaystyle
-\frac{p(\datavector{F}|S)}{p(\datavector{F}|G)} = \Omega
-\quad ,
-\label{eqn:oddsratio}
-\end{eqnarray}
-
-\noindent where $\Omega$ is the odds ratio which decides the classification 
-threshold.  A natural threshold is $\Omega=1$, which may be modified 
-to obtain more pure or complete samples, depending on the science case. 
-
-Algorithmically there are a large number of approaches which 
-produce probabilistic classifications.  Generally, these fall into i) physically 
-based methods - those which have theoretical or empirical models for 
-what type of physical object a source is, or ii) data driven methods - those 
-which use real data with known classifications to construct a model for new 
-data.  Here we consider two physically 
-based template fitting approaches, and one data driven approach.  Below 
-in this section, we present the conceptual basis for each of the three methods. 
-In Section \ref{sec:specifics}, we discuss the specific details, choices, and 
-assumptions made for each of our classification methods.  Finally, in Section 
-\ref{sec:results} we show the performance of the algorithms, and discuss the 
-advantages and limitations related to their use as classifiers.
 
 
 \subsection{Template Fitting: Maximum Likelihood (ML)}
