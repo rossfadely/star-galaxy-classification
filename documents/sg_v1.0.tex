@@ -81,8 +81,8 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{abstract}
-  Current and next-generation wide-field, ground-based optical
-  surveys, like PanSTARRS, DES, and LSST, will produce catalogs to 
+  New ground-based optical
+  surveys like PanSTARRS, DES, and LSST, will produce large catalogs to 
   limiting magnitudes of $r \gtrsim 24$.  The problem of
   source classification, particularly star--galaxy separation,
   is severe because galaxies---even very compact galaxies---outnumber
@@ -159,7 +159,7 @@ faint magnitudes.
 
 \begin{figure}
 \centering
-\includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{stellar_fraction.pdf}
+% \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{stellar_fraction.pdf}
 \caption{The stellar fraction of COSMOS sources as a function of
   magnitude, for sources with $g-r<1$ (left) and $g-r>1$ (right).
   Only stars and galaxies were included in this figure; Only a few
@@ -459,7 +459,7 @@ should be at the sub-percent level for the sample we use here.
 
 \begin{figure}
 \centering
-\includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{Cosmos_data_colorcolor_225r25_hist.pdf}
+% \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{Cosmos_data_colorcolor_225r25_hist.pdf}
 \caption{The color--color space distribution of point sources (FWHM $<
   0.2''$) in the COSMOS catalog.  It is clear that stars in the sample
   follow a tight locus in all slices of color--color space, while
@@ -660,7 +660,7 @@ completeness---at $r>24$ the completeness of ML template fitting falls to 50\% o
 
 \begin{figure}
 \centering
-\includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{completeness.pdf}
+% \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{completeness.pdf}
 \caption{The completeness as a function of magnitude produced by the
   indicated classification approaches.  Results for stars are on the
   left in green, while those for galaxies are shown on the right in
@@ -683,7 +683,7 @@ even with the relatively simple HB approach presented here.  For stars, ML and H
 
 \begin{figure}
 \centering
-\includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{purity.pdf}
+% \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{purity.pdf}
 \caption{Similar to Figure \ref{fig:completeness} but showing purity
   of classified samples, instead of completeness. Results for stars are on the left in green, while those for galaxies are shown on the right in blue.  Here, SVM algorithms 
   clearly outperform all others, if given a very good set of training
@@ -722,7 +722,7 @@ The region of $r-i>1.5$ the stellar locus has essentially zero overlap with gala
 
 \begin{figure}
 \centering
-\includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{Cosmos_hb_percent_colorcolor.pdf}
+% \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{Cosmos_hb_percent_colorcolor.pdf}
 \caption{The fraction of objects correctly classified at
   $\ln(\Omega)=0$ using our HB template fitting, distributed in {\it
     ugriz} color-color space.  The top panel shows the performance on stars, and the bottom panel shows the performance on galaxies.  Comparing with Figure
@@ -734,7 +734,7 @@ The region of $r-i>1.5$ the stellar locus has essentially zero overlap with gala
 
 \begin{figure}
 \centering
-\includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{Cosmos_svm_percent_colorcolor.pdf}
+% \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{Cosmos_svm_percent_colorcolor.pdf}
 \caption{The same as Figure \ref{fig:color-color-hb-fraction}, but for
   a SVM trained with data which span the S/N range of the whole sample
   (SVM$_{best}$).    The top panel shows the performance on stars, and the bottom panel shows the performance on galaxies.  By inspection, it is clear that SVM$_{best}$
@@ -769,7 +769,7 @@ color space.
 
 \begin{figure}
 \centering
-\includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{hb_comppure_vs_lnodds.pdf}
+% \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{hb_comppure_vs_lnodds.pdf}
 \caption{Hierarchical Bayesian template fitting results showing
   completeness (solid) and purity (dashed) lines as a function of
   $\ln\Omega$.  Results for stars are shown in green and galaxies are
@@ -790,7 +790,7 @@ color space.
 
 \begin{figure}
 \centering
-\includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{Cosmos_hb_odds_colorcolor.pdf}
+% \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{Cosmos_hb_odds_colorcolor.pdf}
 \caption{The median $\ln(\Omega)$ of objects produced by our HB
   template fitting, distributed in {\it ugriz} color-color space.
   Similar to Figure \ref{fig:color-color-hb-fraction}, regions with
@@ -857,7 +857,7 @@ for all the data.
 
 \begin{figure}
 \centering
-\includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{roc.pdf}
+% \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{roc.pdf}
 \caption{The Receiver Operating Characteristic (ROC) curve for four photometric 
 classification approaches: SVM$_{best}$, SVM$_{real}$, ML, and HB.  The ROC curve 
 shows the true positive rate versus the false positive rate, as $\ln(\Omega)$ varies.  An ideal classifier 
