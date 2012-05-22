@@ -97,7 +97,7 @@
   don't.  We consider a best-case scenario (SVM$_{best}$) in which the
   training data is (unrealistically) a random sampling of the data,
   and a realistic scenario in which the SVM is trained on higher
-  signal-to-noise (S/N) data (SVM$_{real}$).  Testing with COSMOS
+  signal-to-noise data (SVM$_{real}$).  Testing with COSMOS
   $ugriz$ data we find that HB outperforms ML, delivering $\sim80\%$
   completeness in both star and galaxy samples, with purity of
   $\sim40-90\%$ and $\sim70-90\%$ for stars and galaxies.  We measure
@@ -194,23 +194,21 @@ $\datavector{F}$ to compute the likelihood that the object is of a
 given type.  For example, a star ($S$) galaxy ($G$) classification
 algorithm produces the likelihoods $p(\datavector{F}|S)$ and
 $p(\datavector{F}|G)$ and decides classification by comparing the
-ratio of the likelihoods -
-
+ratio of the likelihoods
 \begin{eqnarray}\displaystyle
 \Omega = \frac{p(\datavector{F}|S)}{p(\datavector{F}|G)} 
 \quad ,
 \label{eqn:oddsratio}
 \end{eqnarray}
-
-\noindent A natural classification threshold is an odds ratio,
+A natural classification threshold is an odds ratio,
 $\Omega$, of 1, which may be modified to obtain more pure or more
 complete samples.
 
 Algorithmically there are a large number of approaches which produce
 probabilistic classifications.  Generally, these fall into i)
-physically based methods - those which have theoretical or empirical
+physically based methods---those which have theoretical or empirical
 models for what type of physical object a source is, or ii) data
-driven methods - those which use real data with known classifications
+driven methods---those which use real data with known classifications
 to construct a model for new data.  Bayesian and $\chi^2$ template
 fitting methods have been extensively used to infer the properties of
 galaxies \citep[e.g.][]{coil04a, ilbert09, xia09,
@@ -271,7 +269,7 @@ unknown but can be `fit' to the data.
 The maximum likelihood (ML) value of $C_i$ for each template that best
 fits a source's observed fluxes, $\datavector{F}$, is that which
 returns the lowest $\chi^2$. After assessing the ML values of $C_i$
-for all the templates, classification is straightforward - one need
+for all the templates, classification is straightforward---one need
 only to compare the lowest star $\chi^2$ to the lowest galaxy
 $\chi^2$.  In other words, $\chi^2_S-\chi^2_G=\ln(\Omega)$ is the
 classification criteria (cf. Equation \ref{eqn:oddsratio}).
@@ -314,7 +312,7 @@ calculated as a marginalized likelihood.  For each template fit, we
 compute the total likelihood of the fit by marginalizing over the
 uncertainty in fitting coefficient $C_i$.  This marginalization is the
 total probability of a Gaussian distribution with variance
-$\sigma_{C_i}^2$ - a value which is returned using least squares
+$\sigma_{C_i}^2$---a value which is returned using least squares
 fitting techniques \citep[e.g.,][]{hogg10}.
 
 By Bayes' theorem, marginalization requires we specify the prior
@@ -616,7 +614,7 @@ Ultimately, we optimize to find the best performing values.
 Finally, to implement the SVM classification routine we need to scale both 
 the training data and the data to be classified (a.k.a., test data).  That is, for 
 the colors and apparent magnitude used, we must scale the range of each to lie 
-between -1 and 1.  We map both training and test data to the interval $[-1,1]$ 
+between $-1$ and $1$.  We map both training and test data to the interval $[-1,1]$ 
 using the full range of values in the test data.  This is important in the case 
 of SVM$_{real}$, since the training data may not span the full range 
 of values for the test data.  We find that scaling can have a significant 
@@ -692,7 +690,7 @@ correctly classified using HB and SVM$_{best}$, distributed over
 colors.  Comparing with Figure \ref{fig:color-color-data} reveals that the places where classification is least successful
 are regions where stars and galaxies overlap the most in color.  For example, both the SVM$_{best}$ and the HB algorithm struggle to correctly identify galaxies with 1 $<$ $u-g$ $<$ 3 and 1 $<$ $g-r$ $<$1.5.  The number density of galaxies in the failing region is low, making HB even more likely to call everything a star.  Similarly, both stars and galaxies populate $u-g < 1$ and $g-r \sim 1$, presenting a challenge to both SVM and HB algorithms.  In this case, the number density of galaxies is higher than that of stars, making HB even more likely to call everything a galaxy and training SVM on a color separation that favors galaxies over stars.  
 
-The region of $r-i>1.5$ the stellar locus has essentially zero overlap with galaxies in the sample.  The SVM$_{best}$ algorithm yields exquisite classification of stars in this region of color-color space, which the HB algorithm returns only a mediocre performance (although $g-r < 1$ and $r-i > 1.5$ is populated with few stars, so those poorly classified regions do not represent a significant fraction of stars).  In future work, the classification of $r-i > 1.5$ stars could therefore be improved with the implementation of stronger priors on the permitted redshifts at which galaxies may live - for example, by forcing a zero probability of elliptical galaxies at high redshifts.
+The region of $r-i>1.5$ the stellar locus has essentially zero overlap with galaxies in the sample.  The SVM$_{best}$ algorithm yields exquisite classification of stars in this region of color-color space, which the HB algorithm returns only a mediocre performance (although $g-r < 1$ and $r-i > 1.5$ is populated with few stars, so those poorly classified regions do not represent a significant fraction of stars).  In future work, the classification of $r-i > 1.5$ stars could therefore be improved with the implementation of stronger priors on the permitted redshifts at which galaxies may live---for example, by forcing a zero probability of elliptical galaxies at high redshifts.
 
 %, and has successful classification for
 %both SVM$_{best}$ and HB approaches.  For our HB technique, this is
@@ -839,7 +837,7 @@ possible for future surveys, and will rely on tuning within the
 training data, or on experience from much higher S/N cases.  In our
 experience we have found good SVM classification for a wide range of
 nuisance parameters, but there is no guarantee this should be the
-case.  Our HB template fitting, however, is fully specified - all
+case.  Our HB template fitting, however, is fully specified---all
 nuisance and hyperparameters are determined by the optimum likelihood
 for all the data.
 
