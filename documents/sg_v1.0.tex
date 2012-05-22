@@ -81,40 +81,34 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{abstract}
-  New ground-based optical
-  surveys like PanSTARRS, DES, and LSST, will produce large catalogs to 
-  limiting magnitudes of $r \gtrsim 24$.  The problem of
-  source classification, particularly star--galaxy separation,
-  is severe because galaxies---even very compact galaxies---outnumber
-  halo stars at these depths.  Here we investigate
-  photometric classification
-  techniques on stars and galaxies with intrinsic FWHM$<0.2$~arcsec.
-  We consider unsupervised spectral energy distribution template fitting and
-  supervised
-  data-driven Support Vector Machines (SVM).  For template
-  fitting, we use a Maximum Likelihood (ML) method and
-  a new Hierarchical Bayesian (HB) method, in which we learn the prior
-  distribution of template probabilities by optimizing the likelihood
-  for the entire dataset.  SVM requires training
-  data to classify unknown sources; ML and HB don't.  We consider a
-  best-case scenario (SVM$_{best}$) in which the training data is (unrealistically) a
-  random sampling of the data, and
-  a realistic scenario in which the SVM is trained on higher
-  signal-to-noise (S/N) data (SVM$_{real}$).
-  Testing with COSMOS $ugriz$ data
-  we find that
-  HB outperforms ML, delivering
-  $\sim80\%$ completeness in both star and galaxy samples, with purity
-  of $\sim40-90\%$ and $\sim70-90\%$ for stars and galaxies.
-  We measure the area under the Receiver Operating Characteristic curve (AUC) to assess the relative
-  performance of the approaches.  We find AUC 0.92, 0.88, 0.84, 0.70 for
-  SVM$_{best}$, HB, ML, and SVM$_{real}$.  We conclude,
-  therefore, that a well trained SVM will outperform template-fitting
-  methods.  However, a normally trained SVM performs worse.  Thus, Hierarchical Bayesian
-  template fitting may prove to be the optimal method for
-  source classification in future surveys.
+  New ground-based optical surveys like PanSTARRS, DES, and LSST, will
+  produce large catalogs to limiting magnitudes of $r \gtrsim 24$.
+  The problem of source classification, particularly star--galaxy
+  separation, is severe because galaxies---even very compact
+  galaxies---outnumber halo stars at these depths.  Here we
+  investigate photometric classification techniques on stars and
+  galaxies with intrinsic FWHM$<0.2$~arcsec.  We consider unsupervised
+  spectral energy distribution template fitting and supervised
+  data-driven Support Vector Machines (SVM).  For template fitting, we
+  use a Maximum Likelihood (ML) method and a new Hierarchical Bayesian
+  (HB) method, in which we learn the prior distribution of template
+  probabilities by optimizing the likelihood for the entire dataset.
+  SVM requires training data to classify unknown sources; ML and HB
+  don't.  We consider a best-case scenario (SVM$_{best}$) in which the
+  training data is (unrealistically) a random sampling of the data,
+  and a realistic scenario in which the SVM is trained on higher
+  signal-to-noise (S/N) data (SVM$_{real}$).  Testing with COSMOS
+  $ugriz$ data we find that HB outperforms ML, delivering $\sim80\%$
+  completeness in both star and galaxy samples, with purity of
+  $\sim40-90\%$ and $\sim70-90\%$ for stars and galaxies.  We measure
+  the area under the Receiver Operating Characteristic curve (AUC) to
+  assess the relative performance of the approaches.  We find AUC
+  0.92, 0.88, 0.84, 0.70 for SVM$_{best}$, HB, ML, and SVM$_{real}$.
+  We conclude, therefore, that a well trained SVM will outperform
+  template-fitting methods.  However, a normally trained SVM performs
+  worse.  Thus, Hierarchical Bayesian template fitting may prove to be
+  the optimal method for source classification in future surveys.
 \end{abstract}
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
