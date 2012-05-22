@@ -1,3 +1,10 @@
+% Notes for RF from Hogg:
+% -----------------------
+% (feel free to over-rule me on any of these)
+% - don't use $all$ for emphasis, use \emph{all}
+% - use ``arcsec'' not '' for units
+% - avoid latin abbrevs like e.g. except in reference lists
+
 % to-do
 % -----
 % - clean up
@@ -173,7 +180,7 @@ studies of red stars, which may dominate point source counts for
 $r\lesssim24$. Although morphological identification of galaxies with
 FWHM as small as $0.2$~arcsec is better than possible the Sloan Digital Sky
 Survey, which had a median seeing of $\sim1.3$~arcsec, future surveys with
-higher median image quality (e.g. $0.7$~arcsec predicted for LSST) may
+higher median image quality (for example, $0.7$~arcsec predicted for LSST) may
 approach this limit.
 
 Utilizing the fundamental differences between SEDs of stars and
@@ -182,7 +189,7 @@ point source catalogs.  In general, stellar SEDs are more sharply
 peaked (close to blackbody) than galaxies, which exhibit fluxes more
 broadly distributed across wavelength.  Traditionally, color-color
 cuts have been used to eliminate galaxies from point source catalogs
-\citep[e.g.][]{gould92a,reitzel98a,daddi04a}.  Advantages of the
+\citep[e.g.,][]{gould92a,reitzel98a,daddi04a}.  Advantages of the
 color-color approach include its simple implementation and its
 flexibility to be tailored to the goals of individual studies.
 Disadvantages of this approach include its disregard for A and B.
@@ -211,12 +218,12 @@ models for what type of physical object a source is, or ii) data
 driven methods---those which use real data with known classifications
 to construct a model for new data.  Bayesian and $\chi^2$ template
 fitting methods have been extensively used to infer the properties of
-galaxies \citep[e.g.][]{coil04a, ilbert09, xia09,
+galaxies \citep[e.g.,][]{coil04a, ilbert09, xia09,
   walcher11a,hildebrandt10}. But relatively little attention has been
 paid to stars which contribute marginally to overall source counts
 (although see \citealt{robin07}).  Several groups have recently
 investigated data driven, support vector machine based star--galaxy
-separation algorithms \citep[e.g.][]{saglia12,solarz12a,tsalmantza12a}.
+separation algorithms \citep[e.g.,][]{saglia12,solarz12a,tsalmantza12a}.
 
 In this paper, we describe, test, and compare two physically based
 template fitting approaches to star--galaxy separation
@@ -312,21 +319,22 @@ fitting techniques \citep[e.g.,][]{hogg10}.
 By Bayes' theorem, marginalization requires we specify the prior
 probability that any object might have a given SED template (at a
 given redshift).  The prior probability distributions might be chosen
-to be uninformative (e.g., flat), informed by knowledge from outside
-studies, or informed by the data on all the other objects.  The latter
-approach, referred to as a hierarchical model, is widely used in
-statistical data analysis \citep[e.g.,][]{gelman03} and is beginning
-to be used in astronomy \citep{eccentricity, shu12}.  The benefits of
-hierarchical approaches are many---because every inference is informed
-by every datum in the data set, they generally show improved
-probabilistic performance over simpler approaches, while requiring no
-additional knowledge outside the observed data and the template SEDs.
+to be uninformative (for example, flat), informed by knowledge from
+outside studies, or informed by the data on all the other objects.
+The latter approach, referred to as a hierarchical model, is widely
+used in statistical data analysis \citep[e.g.,][]{gelman03} and is
+beginning to be used in astronomy \citep{eccentricity,
+shu12}.  \textbf{Hogg: There is a Kaisey Mendel (sp?) paper on SNe
+that is HB.  RF: Can you find it?}  The benefits of hierarchical
+approaches are many---because every inference is informed by every
+datum in the data set, they generally show improved probabilistic
+performance over simpler approaches, while requiring no additional
+knowledge outside the observed data and the template SEDs.
 Functionally, hierarchical approaches consist of parameterizing the
 prior probability distributions (for example, with the mean and
 variance of a Normal distribution), and varying these parameters
 (known as ``hyperparameters'') to determine the probability
-of \emph{all} the data under
-\emph{all} the models.
+of \emph{all} the data under \emph{all} the models.
 
 For our work, we optimize the hyperparameters of the SED template
 prior distributions to return the maximum marginalized likelihood of
@@ -994,10 +1002,10 @@ Gelman, A., Carlin, J.~B., Stern, H.~S., \& Rubin, D.~B. 2003, Bayesian Data
 \bibitem[{{Hildebrandt} {et~al.}(2010)}]{hildebrandt10}
 {Hildebrandt}, H., {et~al.} 2010, arXiv:1008.0658
 
-\bibitem[{{Hogg} {et~al.}(2010){Hogg}, {Bovy}, \& {Lang}}]{hogg10}
+\bibitem[{{Hogg} {et~al.}(2010b){Hogg}, {Bovy}, \& {Lang}}]{hogg10}
 {Hogg}, D.~W., {Bovy}, J., \& {Lang}, D. 2010, arXiv:1008.4686
 
-\bibitem[Hogg \etal(2010b)]{eccentricity}
+\bibitem[Hogg {et~al.}(2010a){Hogg}, {Myers}, \& {Bovy}]{eccentricity}
   Hogg,~D.~W., Myers,~A.~D., \& Bovy,~J., 2010b,
   ``Inferring the eccentricity distribution'', arXiv:1008.4146
 
@@ -1227,7 +1235,7 @@ constraint
 \noindent Here we have also introduced some 
 ``hyperparameters'' $\hyperpars$, which are variables which parameterize 
 prior distributions.  The subset of hyperparameters $\hyperpars$ which 
-apply to $p(C_{ij}|j,S,\hyperpars)$ might be, e.g., the mean and variance of 
+apply to $p(C_{ij}|j,S,\hyperpars)$ might be, for example, the mean and variance of 
 a log-normal distribution on $C_{ij}$.   It is the simultaneous inference
 of the star--galaxy probabilities and the hyperparameters that
 make the approach hierarchical.  
