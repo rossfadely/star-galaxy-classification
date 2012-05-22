@@ -280,26 +280,20 @@ classification criteria (cf. Equation \ref{eqn:oddsratio}).
 Hierarchical Bayesian (HB) algorithms provide another template
 fitting-based approach to photometric classification.  Unlike ML
 approaches, Bayesian approaches offer the opportunity to utilize
-information about how likely a source is to be $S$ or $G$.  With a
-hierarchical Bayesian algorithm, these probabilities do not need to be
-set prior to the classification process.  We discuss these basic
-features of Bayesian, and hierarchical Bayesian, algorithms in detail
-below.
-
-%We present a new, Hierarchical Bayesian (HB) approach to template
-%fitting.  For our approach, we seek to capture all the information
-%present in the data, given the measurement and model uncertainties.
+information about how likely a source is to be each kind of star or
+galaxy; the different templates are not treated as equal \emph{a
+priori}.  With a hierarchical Bayesian algorithm, individual source
+prior probabilities do not need to be set in advance of the
+full-sample classification process; the entire sample of sources can
+inform the prior probabilities for each individual source.
 
 Consider the scenario where a $G$ model fits data $\datavector{F}_i$
 only \textit{slightly} better than the best $S$ model, while all other
 $G$ models give poor fits and all other $S$ models give nearly as
 likely fits.  In this case, ignoring all other $S$ models besides the
 best is the wrong thing to do, since the data are stating that $S$
-models are \textit{generally} more favored.  Capturing this
+models are \textit{generally} more favored.  Capturing this kind of
 information is one primary aim of most Bayesian algorithms.
-
-%Indeed, capturing this information is much more informative than
-%simply discarding everything but the best (ML) models.
 
 To capture this information, we \textit{marginalize} over all possible
 star and galaxy templates to compute the total probability that a
@@ -319,19 +313,20 @@ By Bayes' theorem, marginalization requires we specify the prior
 probability that any object might have a given SED template (at a
 given redshift).  The prior probability distributions might be chosen
 to be uninformative (e.g., flat), informed by knowledge from outside
-studies, or informed by the data themselves.  The latter approach,
-referred to as a hierarchical model, is widely used in statistical
-data analysis \citep[e.g.,][]{gelman03} and is beginning to be used in
-astronomy \citep{shu12}.  The benefits of hierarchical approaches are
-many---they have been shown to exhibit improved probabilistic performance
-over simpler approaches \rf{Need cites---Hogg, any suggestions???}, and require no additional
-knowledge outside the observed data and the template SEDs.  \rf{@BW how about 
-now?} Functionally,
-hierarchical approaches consist of parameterizing the prior
-probability distributions (e.g., with the mean and variance of a
-Normal distribution), and varying these parameters (known as
-hyperparameters) to determine the probability of $all$ the data under
-$all$ the models.
+studies, or informed by the data on all the other objects.  The latter
+approach, referred to as a hierarchical model, is widely used in
+statistical data analysis \citep[e.g.,][]{gelman03} and is beginning
+to be used in astronomy \citep{eccentricity, shu12}.  The benefits of
+hierarchical approaches are many---because every inference is informed
+by every datum in the data set, they generally show improved
+probabilistic performance over simpler approaches, while requiring no
+additional knowledge outside the observed data and the template SEDs.
+Functionally, hierarchical approaches consist of parameterizing the
+prior probability distributions (for example, with the mean and
+variance of a Normal distribution), and varying these parameters
+(known as ``hyperparameters'') to determine the probability
+of \emph{all} the data under
+\emph{all} the models.
 
 For our work, we optimize the hyperparameters of the SED template
 prior distributions to return the maximum marginalized likelihood of
@@ -339,7 +334,7 @@ all the data.  This procedure will enable us to simultaneously infer
 the star--galaxy probability of each source while determining the
 hyperparameters that maximize the likelihood of the observed dataset.
 A brief description of the functional form of these priors is given
-below in Section \ref{ssec:HBspecifics}.  Although we focus on the
+below in Section~\ref{ssec:HBspecifics}.  Although we focus on the
 star--galaxy probabilities in this paper, the optimized hyperparameters
 themselves yield a measurement of the detailed demographics of a
 dataset. 
@@ -1001,6 +996,10 @@ Gelman, A., Carlin, J.~B., Stern, H.~S., \& Rubin, D.~B. 2003, Bayesian Data
 
 \bibitem[{{Hogg} {et~al.}(2010){Hogg}, {Bovy}, \& {Lang}}]{hogg10}
 {Hogg}, D.~W., {Bovy}, J., \& {Lang}, D. 2010, arXiv:1008.4686
+
+\bibitem[Hogg \etal(2010b)]{eccentricity}
+  Hogg,~D.~W., Myers,~A.~D., \& Bovy,~J., 2010b,
+  ``Inferring the eccentricity distribution'', arXiv:1008.4146
 
 \bibitem[{{Ilbert} {et~al.}(2006){Ilbert}, {Arnouts}, {McCracken},
   {Bolzonella}, {Bertin}, {Le F{\`e}vre}, {Mellier}, {Zamorani}, {Pell{\`o}},
