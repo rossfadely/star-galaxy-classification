@@ -88,33 +88,39 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{abstract}
-  New ground-based optical surveys like PanSTARRS, DES, and LSST, will
+  Ground-based optical surveys such as PanSTARRS, DES, and LSST, will
   produce large catalogs to limiting magnitudes of $r \gtrsim 24$.
-  The problem of source classification, particularly star--galaxy
-  separation, is severe because galaxies---even very compact
-  galaxies---outnumber halo stars at these depths.  Here we
-  investigate photometric classification techniques on stars and
-  galaxies with intrinsic FWHM$<0.2$~arcsec.  We consider unsupervised
-  spectral energy distribution template fitting and supervised
-  data-driven Support Vector Machines (SVM).  For template fitting, we
-  use a Maximum Likelihood (ML) method and a new Hierarchical Bayesian
-  (HB) method, in which we learn the prior distribution of template
-  probabilities by optimizing the likelihood for the entire dataset.
-  SVM requires training data to classify unknown sources; ML and HB
-  don't.  We consider a best-case scenario (SVM$_{best}$) in which the
-  training data is (unrealistically) a random sampling of the data,
-  and a realistic scenario in which the SVM is trained on higher
-  signal-to-noise data (SVM$_{real}$).  Testing with COSMOS
+  Star--galaxy separation will pose a major challenge to such surveys
+  because galaxies---even very compact galaxies---outnumber halo stars
+  at these depths.  Here we investigate photometric classification
+  techniques on stars and galaxies with intrinsic FWHM $<0.2$~arcsec.
+  We consider unsupervised spectral energy distribution template
+  fitting and supervised, data-driven Support Vector Machines (SVM).
+  For template fitting, we use a Maximum Likelihood (ML) method and a
+  new Hierarchical Bayesian (HB) method, in which we learn the prior
+  distribution of template probabilities by optimizing the likelihood
+  for the entire dataset.  SVM requires training data to classify
+  unknown sources; ML and HB don't.  We consider both i.) a
+  best-case scenario (SVM$_{best}$) in which the training data is
+  (unrealistically) a random sampling of the data in both
+  signal-to-noise and demographics, and ii.) a more realistic scenario
+  in which the SVM is trained on higher signal-to-noise data
+  (SVM$_{real}$) at brighter apparent magnitudes.  Testing with COSMOS
   $ugriz$ data we find that HB outperforms ML, delivering $\sim80\%$
   completeness in both star and galaxy samples, with purity of
-  $\sim40-90\%$ and $\sim70-90\%$ for stars and galaxies.  We measure
-  the area under the Receiver Operating Characteristic curve (AUC) to
-  assess the relative performance of the approaches.  We find AUC
-  0.92, 0.88, 0.84, 0.70 for SVM$_{best}$, HB, ML, and SVM$_{real}$.
-  We conclude, therefore, that a well trained SVM will outperform
-  template-fitting methods.  However, a normally trained SVM performs
-  worse.  Thus, Hierarchical Bayesian template fitting may prove to be
-  the optimal method for source classification in future surveys.
+  $\sim40-90\%$ and $\sim70-90\%$ for stars and galaxies,
+  respectively.  We find no algorithm delivers perfect performance, and 
+  that studies of M-giant and metal-poor main-sequence turnoff stars
+  may be 
+  most affected by poor star-galaxy separation.  We measure the area 
+  under the Receiver Operating Characteristic curve (AUC) to assess the 
+  relative performance of the approaches and find a best-to-worst 
+  ranking of SVM$_{best}$, HB, ML, and SVM$_{real}$.  We conclude, therefore, that a well
+  trained SVM will outperform template-fitting methods.  However, a
+  normally trained SVM performs worse.  Thus, Hierarchical Bayesian
+  template fitting may prove to be the optimal method for source
+  classification in future surveys.  Code for the basic HB algorithm presented 
+  here is made publicly available.
 \end{abstract}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -136,12 +142,12 @@ current and next generation of wide-field, ground-based surveys is
 being challenged by the vast number of unresolved galaxies at faint
 apparent magnitudes.  
 
-To demonstrate this challenge for studies of the field Milky Way (MW),
+To demonstrate this challenge for studies of field stars in the Milky Way (MW),
 we compare the number of stars to the number of unresolved galaxies at
 faint apparent magnitudes.  Figure~\ref{fig:stellarfraction} shows the
 fraction of COSMOS sources that are stars as a function of $r$
 magnitude and angular size.  The COSMOS catalog \citep[($l,b$) $\sim$ (237,43)
-degrees][]{capak07a,scoville07b,ilbert09} relies on 30-band photometry
+degrees, ][]{capak07a,scoville07b,ilbert09} relies on 30-band photometry
 plus HST/ACS morphology for source classification (see Section 4 for
 details).  We separately consider relatively bluer ($g-r < 1.0$) and redder ($g-r
 > 1.0$) sources because bluer stars are representative of the old,
@@ -155,7 +161,7 @@ magnitudes while the number density of disk red dwarf stars increases at
 faint magnitudes.
 \begin{figure}
 \centering
-% \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{stellar_fraction.pdf}
+ %\includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{fig1.pdf}
 \caption{The stellar fraction of COSMOS sources as a function of
   magnitude, for sources with $g-r<1$ (left) and $g-r>1$ (right).
   Only stars and galaxies were included in this figure; Only a few
@@ -170,8 +176,8 @@ faint magnitudes.
 \end{figure}
  
 In an optimistic scenario in which galaxies with FWHM $\gtrsim 0.2$~arcsec can
-be morphologically resolved (the light blue line in
-Figure~\ref{fig:stellarfraction}, third from the top), unresolved
+be morphologically resolved (the blue line in
+Figure~\ref{fig:stellarfraction}, second from the top), unresolved
 galaxies will still greatly outnumber field MW stars in a point source
 catalog.  For studies of blue stars, field star counts are dominated
 by unresolved galaxies by $r\sim22.5$ and are devastated by unresolved
@@ -192,10 +198,12 @@ cuts have been used to eliminate galaxies from point source catalogs
 \citep[e.g.,][]{gould92a,reitzel98a,daddi04a}.  Advantages of the
 color-color approach include its simple implementation and its
 flexibility to be tailored to the goals of individual studies.
-Disadvantages of this approach include its disregard for A and B.
+Disadvantages of this approach can include its simplistic treatment of
+measurement uncertainties and its limited use of information about
+both populations expected demographics.
 
-Probabalistic algorithms offer a more general and informative approach
-to photometric classification.  The goal of probabalistic photometric
+Probabilistic algorithms offer a more general and informative approach
+to photometric classification.  The goal of probabilistic photometric
 classification of an astronomical source is to use its observed fluxes
 $\datavector{F}$ to compute the likelihood that the object is of a
 given type.  For example, a star ($S$) galaxy ($G$) classification
@@ -204,7 +212,7 @@ $p(\datavector{F}|G)$ and decides classification by comparing the
 ratio of the likelihoods
 \begin{eqnarray}\displaystyle
 \Omega = \frac{p(\datavector{F}|S)}{p(\datavector{F}|G)} 
-\quad ,
+\quad .
 \label{eqn:oddsratio}
 \end{eqnarray}
 A natural classification threshold is an odds ratio,
@@ -216,26 +224,27 @@ probabilistic classifications.  Generally, these fall into i)
 physically based methods---those which have theoretical or empirical
 models for what type of physical object a source is, or ii) data
 driven methods---those which use real data with known classifications
-to construct a model for new data.  Bayesian and $\chi^2$ template
-fitting methods have been extensively used to infer the properties of
-galaxies \citep[e.g.,][]{coil04a, ilbert09, xia09,
-  walcher11a,hildebrandt10}. But relatively little attention has been
-paid to stars which contribute marginally to overall source counts
-(although see \citealt{robin07}).  Several groups have recently
-investigated data driven, support vector machine based star--galaxy
-separation algorithms \citep[e.g.,][]{saglia12,solarz12a,tsalmantza12a}.
+to construct a model for new data.  Physically based bayesian and
+$\chi^2$ template fitting methods have been extensively used to infer
+the properties of galaxies \citep[e.g.,][]{coil04a, ilbert09, xia09,
+  walcher11a,hildebrandt10}. However, in those studies relatively
+little attention has been paid to stars which contribute marginally to
+overall source counts (although see \citealt{robin07}).  Several
+groups have recently investigated data driven, support vector machine
+based star--galaxy separation algorithms
+\citep[e.g.,][]{saglia12,solarz12a,tsalmantza12a}.
 
 In this paper, we describe, test, and compare two physically based
 template fitting approaches to star--galaxy separation
 (maximum-likelihood and hierarchical bayesian), and one data driven
 (support vector machine) approach.  In Section 2, we present the
 conceptual basis for each of the three methods.  In Section
-\ref{sec:specifics}, we discuss the specific details, choices, and
-assumptions made for each of our classification methods.  In Section
-4, we describe the COSMOS data set with which we test the algorithms.
-Finally, in Section \ref{sec:results} we show the performance of the
-algorithms, and discuss the advantages and limitations related to
-their use as classifiers.
+\ref{sec:data}, we describe the COSMOS data set with which we test the
+algorithms.  In Section \ref{sec:specifics}, we discuss the specific
+details, choices, and assumptions made for each of our classification
+methods. Finally, in Section \ref{sec:results} we show the performance
+of the algorithms, and discuss the advantages and limitations related
+to their use as classifiers.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -248,30 +257,20 @@ their use as classifiers.
 \subsection{Template Fitting: Maximum Likelihood (ML)}
 \label{ssec:MLmethod}
 
-One common method for inferring an observed source's properties from
+One common method for inferring a source's properties from
 observed fluxes is template fitting.  This method requires a set of
 spectral templates (empirical or theoretical) that span the possible
 spectral energy distributions (SEDs) of observed sources.  These
 template SEDs must each cover the full wavelength range spanned by the
 photometric filters used to measure the fluxes to be fit.  The
 relative template flux in each filter (for example $ugriz$) for each
-SED is computing by convolving each SED with each filter response
-curve.  Onces these template relative flux values are computed for
+SED is computed by convolving each SED with each filter response
+curve.  Once these relative flux values are computed for
 each SED template, the template model is fully specified except for a
 normalization constant $C$.  For a given observed source $i$, the
 value of $C_i$ is proportional to the total luminosity of the source
 divided by the luminosity distance squared.  This value of $C_i$ is
 unknown but can be `fit' to the data.
-
-%The principle is relatively straightforward. First the user supplies a
-%set of spectral templates that represent the possible SED
-%configurations of both stars $S$ and galaxies $G$.  Then each of the
-%templates is convolved to with known throughput response functions in
-%the various filters to yield a model for the data.  Finally, the
-%quality of the model is assessed against the data.
-  
-%The most common approach to fit $C_i$ is optimizing to the
-%value which returns the lowest $\chi^2$, given the data.  
 
 The maximum likelihood (ML) value of $C_i$ for each template that best
 fits a source's observed fluxes, $\datavector{F}$, is that which
@@ -279,7 +278,7 @@ returns the lowest $\chi^2$. After assessing the ML values of $C_i$
 for all the templates, classification is straightforward---one need
 only to compare the lowest star $\chi^2$ to the lowest galaxy
 $\chi^2$.  In other words, $\chi^2_S-\chi^2_G=\ln(\Omega)$ is the
-classification criteria (cf. Equation \ref{eqn:oddsratio}).
+classification criteria (see Equation \ref{eqn:oddsratio}).
 
 \subsection{Template Fitting: Hierarchical Bayesian (HB)}
 \label{ssec:HBmethod}
@@ -308,13 +307,13 @@ source belongs to a certain classification ($S$ or $G$).  For a
 template fitting-based Bayesian algorithm, this marginalization
 consists of summing up the likelihood of each $S$ template given
 $\datavector{F}_i$, as well as the likelihood of each $G$ template
-(across redshift).  The likelihood of each template was itself
+(across redshift).  Note that the likelihood of each template is itself
 calculated as a marginalized likelihood.  For each template fit, we
 compute the total likelihood of the fit by marginalizing over the
 uncertainty in fitting coefficient $C_i$.  This marginalization is the
 total probability of a Gaussian distribution with variance
 $\sigma_{C_i}^2$---a value which is returned using least squares
-fitting techniques \citep[e.g.,][]{hogg10}.
+fitting techniques \citep[e.g.,][]{hogg10a}.
 
 By Bayes' theorem, marginalization requires we specify the prior
 probability that any object might have a given SED template (at a
@@ -323,9 +322,8 @@ to be uninformative (for example, flat), informed by knowledge from
 outside studies, or informed by the data on all the other objects.
 The latter approach, referred to as a hierarchical model, is widely
 used in statistical data analysis \citep[e.g.,][]{gelman03} and is
-beginning to be used in astronomy \citep{eccentricity,
-shu12}.  \textbf{Hogg: There is a Kaisey Mendel (sp?) paper on SNe
-that is HB.  RF: Can you find it?}  The benefits of hierarchical
+beginning to be used in astronomy \citep{mandel09,hogg10b,mandel11,
+shu12}.  The benefits of hierarchical
 approaches are many---because every inference is informed by every
 datum in the data set, they generally show improved probabilistic
 performance over simpler approaches, while requiring no additional
@@ -354,35 +352,40 @@ A support vector machine (SVM) is a type of machine learning algorithm
 particularly well suited to the problem of classification.  SVM
 algorithms are frequently used in non-astronomical problems, and are
 considered a gold standard against which to compare any new
-classification method.  SVM algorithms train on a catalog of objects
-with known classifications to learn the high dimensional boundary that
-best separates two or more classes of objects.
-%taking a set of
-%`training' data with known classifications, and constructing a set of
-%hyperplanes in a higher dimensional space that best separates the
-%properties of each class.  
-For the case of star--galaxy separation based on broad band photometry,
-the SVM algorithm learns the boundary which best separates the
-observed colors and apparent magnitudes\footnote{We use apparent $r$
-  magnitude here.} of stars and galaxies.  For more details on the SVM 
-  technique, please see \rf{where to send people??}.
+classification method.  SVM algorithms are ``supervised'', meaning
+they train on a catalog of objects with known classifications to learn
+the high dimensional boundary that best separates two or more classes
+of objects.  For classification problems which do not separate perfectly, 
+SVMs account for misclassification errors by looking at the degree of 
+misclassification, weighted by a user specified error penalty parameter.  
+In general the optimal boundary need not be restricted to a linear hyperplane, 
+but is allowed 
+to be non-linear and so can require a very large number of parameters to 
+specify the boundary.  In order for non-linear SVM classification to be 
+computationally feasible, a kernel function is used to map the problem to a 
+lower dimensional feature space \citep{boser92}.
 
-Successful implementation of a SVM algorithm requires a training set
-that is a sufficient analog to the set to be classified.  A SVM has
+
+For the case of star--galaxy separation based on broad
+band photometry, the SVM algorithm learns the boundary which best
+separates the observed colors and apparent magnitudes\footnote{We use
+  apparent $r$ magnitude here.} of stars and galaxies.  For more
+details on the SVM technique, please see \citet{muller01}.
+
+Successful implementation of a SVM algorithm requires a training dataset
+that is a sufficient analog to the dataset to be classified.  A SVM has
 recently been applied to source classification in the Pan-STARRS 1
 photometric pipeline \citep{saglia12}, with promising initial
 results. However, these results were obtained based on analysis of 
 bright, high signal-to-noise data ($r\lesssim18$), using training data 
 which is a subset of the data itself.
-%Initial tests of the algorithm
-%reveal though on very high signal to
-%noise data (SDSS DR8, $r\lesssim19$).  
+
 To investigate the impact of training set quality and demographics on
 the problem of star--galaxy separation, we will consider the utility
 and performance of SVM algorithms in a new classification regime,
 where the data is of lower signal to noise (described in Section
 \ref{sec:data}), and the number of unresolved galaxies is comparable
-or more than the number of stars.
+to or larger than the number of stars.
 
 \section{Test Data}
 \label{sec:data}
@@ -397,7 +400,8 @@ problem of classification in current and upcoming surveys like
 Pan-STARRS 1, DES, and LSST.  The COSMOS catalog satisfies these
 requirements.   
 
-The \href{http://cosmos.astro.caltech.edu/}{COSMOS} survey \citep{scoville07a} covers $\sim$ 2 square degrees on
+The \href{http://cosmos.astro.caltech.edu/}{COSMOS} survey 
+\citep{scoville07a} covers $\sim$ 2 square degrees on
 the sky using 30 band photometry, and is magnitude limited down to $r
 \sim 25$.  Broadband $ugrizJK$ photometry exists down to limiting
 magnitudes which complement the $r$ limiting magnitude, and {\it
@@ -424,11 +428,11 @@ testing our methods.  These consist of a $\chi^2$ classification
 from fitting star and galaxy templates to the 30 band photometry, 
 and a morphological classification using the 
 {\tt ACS\_MU\_CLASS} statistic derived by the analysis of the 
-\textit{HST} photometry by \citet{scarlata07}.  AGN were classified 
-using a similar criterion, as well as the presence of Xray emission 
-in the {XMM} data.  We use an updated version of the publicly 
-available photometric redshift catalog, provided by P. Capak 
-(private communication).  
+\textit{HST} photometry by \citet{scarlata07}.  AGN are classified 
+and discarded using a similar criterion, as well as through the presence 
+of Xray emission in the {XMM} data.  We use an updated version 
+of the publicly available photometric redshift catalog, provided by 
+P. Capak (private communication).  
 
 Throughout this paper, we restrict our analysis to sources likely to
 be unresolved in ground based data (FWHM$_{HST/ACS}$ $< 0.2$~arcsec).  We
@@ -436,20 +440,21 @@ do so since tried and true morphological classification criteria will
 easily distinguish quite extended sources, accounting for a majority
 of galaxies to depths of $r\sim24-25$.  However, galaxies with angular
 sizes $< 0.2$~arcsec are unlikely to be resolved in surveys with seeing
-$\gtrsim0.7$~arcsec, so are an appropriate test bed for the type of sources
+$\gtrsim0.7$~arcsec, and so are an appropriate test bed for the type of sources
 which will rely the most on photometric star--galaxy separation.  In
 total, our sample consists of 6166 stars and 11449 galaxies with apparent 
 magnitudes $22.5<r<25$, and is plotted in {\it ugriz} color--color space in
 Figure \ref{fig:color-color-data}.   Over this magnitude range, the median 
 signal-to-noise in the $r$ band ranges from $\sim50$ at $r=22.5$ to 
 $\sim15$ at $r=25$, with lower corresponding ranges of 10 to 7 in the $u$.  
-Of all YY sources with FWHM$<0.2$~arcsec in the COSMOS catalog, we 
-identified XX AGN.  Thus, the contamination from any mis-classified AGN 
-should be at the sub-percent level for the sample we use here.
+Of all 17827 sources with FWHM$<0.2$~arcsec in the COSMOS catalog, we 
+identified 212 AGN.  Thus, the contamination from any mis-classified AGN 
+should be at the sub-percent level for the sample we use here.  \rf{Double check 
+AGN numbers before submission/distribution.}
 
 \begin{figure}
 \centering
-% \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{Cosmos_data_colorcolor_225r25_hist.pdf}
+ %\includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{fig2.pdf}
 \caption{The color--color space distribution of point sources (FWHM $<
   0.2$~arcsec) in the COSMOS catalog.  It is clear that stars in the sample
   follow a tight locus in all slices of color--color space, while
@@ -482,17 +487,18 @@ We use CK models with abundances ranging from $-2.5
 \le\,$[Fe/H]$\,\le0.0$, surface gravities ranging from
 $3.0\le\log(g)\le0.0$, and effective temperatures from $3500 \le
 T_{eff} \le 10000\,$K.  We include binary star templates by combining
-like-metallicity, flux calibrated CK models.  Finally, we include SDSS
-M9 through L0 dwarf templates provided by \citet{bochanski07}.  These
-templates have been extended by \citeauthor{bochanski07} into the near
-infrared, but lack data for wavelengths shorter than $4000\,$\AA.  We
+like-metallicity templates using flux calibrated CK models.  Finally, we include SDSS
+M9 through L0 dwarf templates provided by J. J. Bochanski (private 
+communication).  These
+templates have been extended from the templates of \citet{bochanski07} into 
+the near infrared, but lack data for wavelengths shorter than $4000\,$\AA.  We
 extend these templates down to the $3000\,$\AA\, using a main sequence
 CK model with $T_{eff}=3500$K.  Details of this extension are likely
 to be unimportant, since the flux of such stars between
 $3000-4000\,$\AA\, is negligible.  Our final combined library of stellar
-templates includes 131 from the Pickles library, 255 from the CK library,
-10 from \citet{bochanski07}, and 917 binary templates constructed from
-the CK library, for a total of 1313 stellar templates.
+templates includes 131 from the Pickles library, 256 from the CK library,
+11 from \citet{bochanski07}, and 1319 binary templates constructed from
+the CK library, for a total of 1717 stellar templates.
 
 We select for our galaxy templates those used by the COSMOS team,
 described in \citep{ilbert09}, provided publicly through the
@@ -538,11 +544,10 @@ inferential procedure in Appendix A.  Open-source \texttt{C} code is
 available at {\footnotesize
   \texttt{\url{http://github.com/rossfadely/star-galaxy-classification}}}.
 In this section, we qualitatively describe features specific to our HB
-algorithm.
-
-%optimization of the HB classification, we subsampled the ML set of
-%templates to a list of 250 which span a range of physical and
-%color-color properties.
+algorithm.  We emphasize that hierarchical bayesian algorithms are
+unsupervised: we use no training set and do not set priors in advance
+of running the algorithms.  As described in \S2.2, the priors for the
+templates are inferred from the data itself.
 
 Our HB template fitting method draws from the same set of SED
 templates described above in Section \ref{ssec:MLspecifics}.  However,
@@ -577,13 +582,24 @@ priors to the maximum likelihood of the entire dataset.
 
 \subsection{SVM Models}
 
-We use the \href{http://www.csie.ntu.edu.tw/\%7Ecjlin/libsvm/}{\texttt{LIBSVM}}
-\footnote{\href{http://www.csie.ntu.edu.tw/\%7Ecjlin/libsvm/}
-{\tt http://www.csie.ntu.edu.tw/\%7Ecjlin/libsvm/}}| set of routines,
+We use the
+\href{http://www.csie.ntu.edu.tw/\%7Ecjlin/libsvm/}{\texttt{LIBSVM}}
+\footnote{\href{http://www.csie.ntu.edu.tw/\%7Ecjlin/libsvm/} {\tt
+    http://www.csie.ntu.edu.tw/\%7Ecjlin/libsvm/}}| set of routines,
 described in \citet{chang11a}.  The provided routines are quick and
-easy to implement, but require the user to specify a training set of
-data, as well as the form and parameter values of the kernel function
-used.
+easy to implement, and only require the user to specify a training set
+of data, a set of data to be classified (a.k.a., test data), and the form 
+and parameter values of the kernel function used.  
+
+We employ a Gaussian radial basis function for the SVM kernel, 
+for which we must specify a scaling factor $\gamma$.  Together with 
+the error penalty parameter ($C_{\rm SVM}$) we have two 
+nuisance parameters whose optimal values we need 
+find.  We do this by using a Nelder-Mead simplex optimization algorithm to find the 
+parameter values which provide the highest number of correct 
+classifications in the test data.  In detail, the optimal values for 
+$\gamma,C_{\rm SVM}$ will be different for each combination of 
+training and test data.
 
 To select the training data, we consider two scenarios.  First is a
 `best case' situation (SVM$_{best}$), where a well-characterized
@@ -606,30 +622,20 @@ obtained only at the high $S/N$ end of the data.  In both cases, we
 consider a training sample size which is a fifth of the total catalog
 size.
 
-We implement a Gaussian radial basis function for the SVM kernel, with
-form $k(\mathbf{x_i},\mathbf{x_j}) = {\rm
-  exp}(-\gamma|\mathbf{x_i}-\mathbf{x_j}|^2)$ and an error penalty of
-$C_{\rm SVM}$.  To find the appropriate values of the nuisance
-parameters $\gamma,C_{\rm SVM}$, we initially explore the
-classification performance on a grid of $\gamma,C_{\rm SVM}$ values.
-Ultimately, we optimize to find the best performing values.
+Finally, to implement the SVM classification routine we need to scale
+both the training data and test data.  That is, for the colors and apparent magnitude used, we must
+scale the range of each to lie between $-1$ and $1$.  We map both
+training and test data to the interval $[-1,1]$ using the full range
+of values in the test data.  This is important in the case of
+SVM$_{real}$, since the training data may not span the full range of
+values for the test data.  We find that scaling can have a significant
+effect for the SVM$_{real}$ model.  For example, poor classification
+performance is obtained if the SVM$_{real}$ training data is scaled to
+itself rather than to the test data.
 
-Finally, to implement the SVM classification routine we need to scale both 
-the training data and the data to be classified (a.k.a., test data).  That is, for 
-the colors and apparent magnitude used, we must scale the range of each to lie 
-between $-1$ and $1$.  We map both training and test data to the interval $[-1,1]$ 
-using the full range of values in the test data.  This is important in the case 
-of SVM$_{real}$, since the training data may not span the full range 
-of values for the test data.  We find that scaling can have a significant 
-effect for the SVM$_{real}$ model.  For example, poor classification performance is 
-obtained if the SVM$_{real}$ training data is scaled to itself rather than to the test data
-
-%, which disregards the fact that the colors span a different range than the test data.
 
 \section{Results and Discussion}
 \label{sec:results}
-
-\bw{I think we should consider breaking this section up into 2-3 subsections.}
 
 We report the classification performance of Maximum Likelihood (ML)
 and Hierarchical Bayesian (HB) template fitting, as well as a
@@ -640,17 +646,23 @@ completeness\footnote{Defined as the fraction of sources of true type
   $X$, correctly classified as $X$.} and purity\footnote{Defined as
   the number of sources of true type $X$, correctly classified as $X$,
   divided by the total number of sources classified as $X$.} of
-classified samples, evaluated at $\ln(\Omega)\footnote{Defined in Equation 1}=0$.  Figures
-\ref{fig:completeness} and \ref{fig:purity}, display the completeness
-and purity, respectively, as a function of magnitude.  Examining
-Figure \ref{fig:completeness},  all methods seem to be fairly competitive for galaxy classification, returning $80-90\%$ completeness
-across all magnitudes.  SVM$_{best}$ and ML yield the most consistently robust completeness for galaxy.  In the case of stars, however, it is clear
-only our HB template fitting and SVM$_{best}$ deliver acceptable
-completeness---at $r>24$ the completeness of ML template fitting falls to 50\% or below, and the completeness for SVM$_{real}$ goes to zero.  The mismatch in source demographics between the realistic training set and the faint COSMOS sources severely undermined the efficacy of the SVM.  
+classified samples, evaluated at $\ln(\Omega)\footnote{Defined in
+  Equation 1}=0$.  Figures \ref{fig:completeness} and
+\ref{fig:purity}, display the completeness and purity, respectively,
+as a function of magnitude.  Examining Figure \ref{fig:completeness},
+all methods seem to be fairly competitive for galaxy classification,
+returning $80-90\%$ completeness across all magnitudes.  SVM$_{best}$
+and ML yield the most consistently robust completeness for galaxies.
+In the case of stars, however, it is clear only our HB template
+fitting and SVM$_{best}$ deliver acceptable completeness---at $r>24$
+the completeness of ML template fitting falls to 50\% or below, and
+the completeness for SVM$_{real}$ goes to zero.  The mismatch in
+source demographics between the realistic training set and the faint
+COSMOS sources severely undermines the efficacy of SVM$_{real}$.
 
 \begin{figure}
 \centering
-% \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{completeness.pdf}
+% \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{fig3.pdf}
 \caption{The completeness as a function of magnitude produced by the
   indicated classification approaches.  Results for stars are on the
   left in green, while those for galaxies are shown on the right in
@@ -662,57 +674,101 @@ completeness---at $r>24$ the completeness of ML template fitting falls to 50\% o
 \end{figure}
 
 
-In terms of purity (Figure
-\ref{fig:purity}), SVM$_{best}$ clearly outperforms all other
-approaches.  For galaxies, HB yields
-similar performance to SVM$_{best}$, but all approaches underperform
-SVM$_{best}$ in terms of stellar purity.  When taking in concert with the results of Figure \ref{fig:completeness}, we see that HB
-delivers similar to or better than performance than ML in all cases,
-even with the relatively simple HB approach presented here.  For stars, ML and HB yield similar sample purity, but HB does so with a much higher completeness ($\sim 80\%$ vs. $\sim 50\%$).  For galaxies, HB yields a consistently higher sample purity by $\sim 10-15\%$ but a consistently lower sample completeness by $\sim15\%$.
+In terms of purity (Figure \ref{fig:purity}), SVM$_{best}$ outperforms
+all other approaches.  For galaxies, HB yields similar performance to
+SVM$_{best}$, but all approaches underperform SVM$_{best}$ in terms of
+stellar purity.  When taken in concert with the results of Figure
+\ref{fig:completeness}, we see that HB delivers similar or better
+performance than ML in all cases, even with the relatively simple HB
+approach presented here.  For stars, ML and HB yield similar sample
+purity, but HB does so with a much higher completeness ($\sim 80\%$
+vs. $\sim 50\%$).  For galaxies, HB yields a consistently higher
+sample purity by $\sim 10-15\%$ but a consistently lower sample
+completeness by $\sim15\%$.
 
 
 \begin{figure}
 \centering
-% \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{purity.pdf}
+% \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{fig4.pdf}
 \caption{Similar to Figure \ref{fig:completeness} but showing purity
-  of classified samples, instead of completeness. Results for stars are on the left in green, while those for galaxies are shown on the right in blue.  Here, SVM algorithms 
-  clearly outperform all others, if given a very good set of training
-  data (${\rm SVM}_{best}$).  For galaxies, our HB algorithm delivers
-  similar purity to the ${\rm SVM}_{best}$ scenario.  For stars,
-  however, HB underperforms ${\rm SVM}_{best}$ as the stellar fraction
-  of the sample decreases.}
+  of classified samples, instead of completeness. Results for stars
+  are on the left in green, while those for galaxies are shown on the
+  right in blue.  Here, SVM algorithms clearly outperform all others,
+  if given a very good set of training data (${\rm SVM}_{best}$).  For
+  galaxies, our HB algorithm delivers similar purity to the ${\rm
+    SVM}_{best}$ scenario.  For stars, however, HB underperforms ${\rm
+    SVM}_{best}$ as the stellar fraction of the sample decreases.}
 \label{fig:purity}
 \end{figure}
 
-We consider the performance achieved by the SVM$_{best}$ algorithm to represent the best possible classification of stars and galaxies that could be done, based on $ugriz$ photometry alone.   However, it is unlikely that an ideal training set will be available for object classification in future, deep datasets.  Identifying the regions of {\it ugirz} color--color
-space where classification fails can highlight possible ways to improve the HB (or ML) classification methods implemented here, that do not rely on such training sets.  For example, we want to check for regions of color-color space in which templates used in ML and HB may be missing, or to check whether the implementation of simple, but stronger, priors could increase performance.   
+We infer below that the performance achieved by the SVM$_{best}$
+algorithm may represent the best possible classification of stars and
+galaxies that could be done, based on single-epoch $ugriz$ photometry
+alone.  However, it is unlikely that an ideal training set will be
+available for object classification in future, deep datasets.
+Identifying the regions of {\it ugirz} color--color space where
+classification fails can highlight possible ways to improve the
+unsupervised HB (or ML) classification methods implemented here.  For
+example, we want to check for regions of color-color space in which
+templates used in ML and HB may be missing, or to check whether the
+implementation of simple, but stronger, priors could increase
+performance.
 
-Figures
-\ref{fig:color-color-hb-fraction} and \ref{fig:color-color-svm-fraction} show the fraction of sources
+Figures \ref{fig:color-color-hb-fraction} and
+\ref{fig:color-color-svm-fraction} show the fraction of sources
 correctly classified using HB and SVM$_{best}$, distributed over
-colors.  Comparing with Figure \ref{fig:color-color-data} reveals that the places where classification is least successful
-are regions where stars and galaxies overlap the most in color.  For example, both the SVM$_{best}$ and the HB algorithm struggle to correctly identify galaxies with 1 $<$ $u-g$ $<$ 3 and 1 $<$ $g-r$ $<$1.5.  The number density of galaxies in the failing region is low, making HB even more likely to call everything a star.  Similarly, both stars and galaxies populate $u-g < 1$ and $g-r \sim 1$, presenting a challenge to both SVM and HB algorithms.  In this case, the number density of galaxies is higher than that of stars, making HB even more likely to call everything a galaxy and training SVM on a color separation that favors galaxies over stars.  
+colors.  Comparing with Figure \ref{fig:color-color-data} reveals that
+the places where classification is least successful are regions where
+stars and galaxies overlap the most in color.  For example, both the
+SVM$_{best}$ and the HB algorithm struggle to correctly identify
+galaxies with 1 $<$ $u-g$ $<$ 3 and 1 $<$ $g-r$ $<$1.5.  The number
+density of galaxies in the failing region is low, making HB even more
+likely to call everything a star.  Similarly, both stars and galaxies
+populate $u-g < 1$ and $g-r \sim 1$, presenting a challenge to both
+SVM and HB algorithms.  In this case, the number density of galaxies
+is higher than that of stars, making HB even more likely to call
+everything a galaxy and training SVM on a color separation that favors
+galaxies over stars.
 
-The region of $r-i>1.5$ the stellar locus has essentially zero overlap with galaxies in the sample.  The SVM$_{best}$ algorithm yields exquisite classification of stars in this region of color-color space, which the HB algorithm returns only a mediocre performance (although $g-r < 1$ and $r-i > 1.5$ is populated with few stars, so those poorly classified regions do not represent a significant fraction of stars).  In future work, the classification of $r-i > 1.5$ stars could therefore be improved with the implementation of stronger priors on the permitted redshifts at which galaxies may live---for example, by forcing a zero probability of elliptical galaxies at high redshifts.
+In the region of $r-i>1.5$, the stellar locus has essentially zero
+overlap with galaxies in the sample.  The SVM$_{best}$ algorithm
+yields exquisite classification of these stars, while the HB algorithm
+returns only a mediocre performance (although $g-r < 1$ and $r-i >
+1.5$ is populated with few stars, so those poorly classified regions
+do not represent a significant fraction of all stars).  In future
+work, the classification of $r-i > 1.5$ stars could therefore be
+improved with the implementation of stronger priors on the permitted
+redshifts at which galaxies may live---for example, by forcing a zero
+probability of elliptical galaxies at high redshifts.
 
-%, and has successful classification for
-%both SVM$_{best}$ and HB approaches.  For our HB technique, this is
-%not to say there are no galaxy template models in the region of
-%$r-i>1.5$ but rather the algorithm infers that there are no galaxies
-%in that region of data.  One obvious difference between the two
-%figures is the relative success in $u-g$ color space---HB clearly
-%underperforms SVM$_{best}$.  This difference is likely do to two
-%reasons.  First, SVM$_{best}$ is data driven, and as such will always
-%have a better model than a sparse set of templates.  Second, the
-%number density of galaxies in the failing region is low, making HB
-%more likely to call everything a star.  While less obvious in other
-%regions of {\it ugriz} color space, these reasons are likely
-%extensible to understanding the relatively lower performance of HB
-%versus SVM$_{best}$.
+Locating regions of color space in which the classifiers struggle to
+correctly separate stars and galaxies not only helps to decipher
+weaknesses in classification algorithms, but can be used to identify
+the specific science cases which will be most highly impacted.  To
+illustrate, we examine places where both SVM$_{best}$ and HB
+underperform and compare these regions to the object types in our
+templates.  First, for stars, we identify two such regions within
+$0.0\lesssim u-g \lesssim 1.0$, one with $0.7\lesssim g-r \lesssim
+1.5$ and another with $0.0\lesssim g-r \lesssim 0.5$.  These are
+consistent with late-type M-giant and metal-poor main-sequence turnoff
+stars, respectively.  The relatively poorer performance in these
+regions is troubling, since these populations are some of the main
+tracers for low-surface brightness Galactic halo structure.  
+
+For galaxies, association of underperforming regions to specific
+populations is less clear-cut.  For instance, we find the poor
+performing region with $1.5\lesssim u-g \lesssim 3.0$ consistent with
+S0/SA SEDs with redshifts less than 0.4, but also with dusty
+starbursting galaxies across a wider redshift range.  While far from
+comprehensive, these associations highlight the fact that
+classification performance can affect certain science cases more than
+others, and should be accounted for both during individual analyses
+and in future algorithm development.
+
 
 \begin{figure}
 \centering
-% \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{Cosmos_hb_percent_colorcolor.pdf}
+ %\includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{fig5.pdf}
 \caption{The fraction of objects correctly classified at
   $\ln(\Omega)=0$ using our HB template fitting, distributed in {\it
     ugriz} color-color space.  The top panel shows the performance on stars, and the bottom panel shows the performance on galaxies.  Comparing with Figure
@@ -724,14 +780,20 @@ The region of $r-i>1.5$ the stellar locus has essentially zero overlap with gala
 
 \begin{figure}
 \centering
-% \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{Cosmos_svm_percent_colorcolor.pdf}
+ %\includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{fig6.pdf}
 \caption{The same as Figure \ref{fig:color-color-hb-fraction}, but for
   a SVM trained with data which span the S/N range of the whole sample
-  (SVM$_{best}$).    The top panel shows the performance on stars, and the bottom panel shows the performance on galaxies.  By inspection, it is clear that SVM$_{best}$
-  outperforms HB template fitting, particularly in the case of
-  galaxies.  A striking difference is the poor galaxy classification
-  of HB compared to SVM$_{best}$ in $u-g$.  This may indicate a model
-  deficiency in the $u$ spectral range of our galaxy templates.}
+  (SVM$_{best}$).  The top panel shows the performance on stars, and
+  the bottom panel shows the performance on galaxies.  By inspection,
+  it is clear that SVM$_{best}$ outperforms HB template fitting,
+  particularly in the case of galaxies.  A striking difference is the
+  poor galaxy classification of HB compared to SVM$_{best}$ in $u-g$.
+  This may indicate a model deficiency in the $u$ spectral range of
+  our galaxy templates.}
+  % poor performing star areas are M-giants and blue, metal poor turnoff stars
+  % poor performing galaxy areas are ellipticals with 1.3<z<1.65 (unlikely), S0 
+  % through SA/B at low z<0.4 redshift, and possibly dusty starbursts at various 
+  % redshifts  
 \label{fig:color-color-svm-fraction}
 \end{figure}
 
@@ -759,7 +821,7 @@ color space.
 
 \begin{figure}
 \centering
-% \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{hb_comppure_vs_lnodds.pdf}
+% \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{fig7.pdf}
 \caption{Hierarchical Bayesian template fitting results showing
   completeness (solid) and purity (dashed) lines as a function of
   $\ln\Omega$.  Results for stars are shown in green and galaxies are
@@ -780,7 +842,7 @@ color space.
 
 \begin{figure}
 \centering
-% \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{Cosmos_hb_odds_colorcolor.pdf}
+% \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{fig8.pdf}
 \caption{The median $\ln(\Omega)$ of objects produced by our HB
   template fitting, distributed in {\it ugriz} color-color space.
   Similar to Figure \ref{fig:color-color-hb-fraction}, regions with
@@ -793,12 +855,18 @@ color space.
 \end{figure}
 
 
-We have considered the completeness and purity of
-sets of data classified as stars or galaxies (as a function of $\ln(\Omega)$) as one means of comparing different classification algorithms.  A strength of this approach to quantifying the efficacy of classification algorithms is its transparent connection to different science requirements, in terms of purity and completeness.  A weakness of this approach is the impossibility of selecting an overall "best" algorithm that presents an average over competing scientific requirements.
-For example, Figure \ref{fig:completeness} shows that compared to
-SVM$_{best}$, our HB method gives better completeness in stars but
-slightly worse completeness for galaxies---which performs better in
-general?
+We have considered the completeness and purity of sets of data
+classified as stars or galaxies (as a function of $\ln(\Omega)$) as
+one means of comparing different classification algorithms.  A
+strength of this approach to quantifying the efficacy of
+classification algorithms is its transparent connection to different
+science requirements, in terms of purity and completeness.  A weakness
+of this approach is the impossibility of selecting an overall ``best"
+algorithm that presents an average over competing scientific
+requirements.  For example, Figure \ref{fig:completeness} shows that
+compared to SVM$_{best}$, our HB method gives better completeness in
+stars but slightly worse completeness for galaxies---which performs
+better in general?
 
 We assess the overall performance of the various classification
 algorithms using the Receiver Operating Characteristic (ROC) curve.  A
@@ -809,8 +877,8 @@ curve for all four classification approaches considered here.  An
 ideal classifier has a true positive rate equal to one for all values
 of $\ln(\Omega)$.  Thus, the Area Under the Curve (AUC) statistic is
 an assessment of the overall performance of the classifier.  There are
-several points worth noting in Figure \ref{fig:roc}.  First, our HB
-approach to template fitting clearly outperforms the ML approach.
+several points worth noting in Figure \ref{fig:roc}.  First, we find our HB
+approach to template fitting outperforms the ML approach.
 Considering our simple HB implementation is not very computationally
 demanding (tens of minutes on typical desktop computer), even a basic
 HB approach should always be preferred over the ML case.  SVM
@@ -818,36 +886,17 @@ algorithms, when trained with data which accurately capture the SED
 and S/N properties of the entire data, generally perform much better
 than our current template fitting methods.  This is not surprising,
 since template driven algorithms are never likely to have as complete
-models as something data driven.  While this provides encouragment for
-classification using SVM, a major hurdle for accurate classification
-is the need for a very good training dataset.  Obtaining a training
-set with accurate classification is difficult, requiring spectroscopy
-or (at a minimum) multi-wavelength data that spans into the infrared.
-Since these are expensive to obtain for a large number of sources,
-especially at depths of $r\gtrsim24$ and beyond.  Instead, it is
-likely that available training data will only capture the high S/N end
-of the survey in question.  As shown in Figure \ref{fig:roc} a
-SVM$_{real}$ scenario underperforms even ML template fitting,
-casting doubt onto the usefulness of SVM with ill-suited training
-information.
-
-In addition to uncertainties associated with the adequacy of training
-data, SVM codes also retain uncertainties associated with kernel
-nuisance parameters ($\gamma,C_{\rm SVM}$ here).  To obtain the best
-possible SVM results, we tuned these parameters using the known
-classifications of all our test data.  Such a scenario will not be
-possible for future surveys, and will rely on tuning within the
-training data, or on experience from much higher S/N cases.  In our
-experience we have found good SVM classification for a wide range of
-nuisance parameters, but there is no guarantee this should be the
-case.  Our HB template fitting, however, is fully specified---all
-nuisance and hyperparameters are determined by the optimum likelihood
-for all the data.
+models as something data driven.  In reality, available training data will 
+likely only capture the high
+S/N end of the survey in question.  As shown in Figure \ref{fig:roc},
+a SVM$_{real}$ scenario underperforms even ML template fitting,
+casting severe doubt onto the usefulness of SVM with ill-suited
+training information.
 
 
 \begin{figure}
 \centering
-% \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{roc.pdf}
+% \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{fig9.pdf}
 \caption{The Receiver Operating Characteristic (ROC) curve for four photometric 
 classification approaches: SVM$_{best}$, SVM$_{real}$, ML, and HB.  The ROC curve 
 shows the true positive rate versus the false positive rate, as $\ln(\Omega)$ varies.  An ideal classifier 
@@ -860,19 +909,22 @@ general assessment of the performance.}
 
 \section{Conclusions}
 
-\bw{A point that I want to add to the conclusions is that, although HB and ML do not explicitly require a training set, they DO require a truth table (aka training set) in order to quantify the performance of a classification algorithm.  If you don't know your performance, then you suck anyway.}
-
 Imminent and upcoming ground-based surveys are observing large
 portions of the sky in optical filters to depths ($r\gtrsim24$),
-investing large amounts of money, resources, and person power.  In
-order for such surveys to best achieve many of their science goals,
+requiring significant amounts of money, resources, and person power.
+In order for such surveys to best achieve some of their science goals,
 accurate star--galaxy classification is required.  At these new
-depths, unresolved galaxy counts increasing dominate the number of
+depths, unresolved galaxy counts increasingly dominate the number of
 point sources classified through morphological means.  To investigate
 the usefulness of photometric classification methods for unresolved
 sources, we examine the performance of photometric classifiers using
-{\it ugriz} photometry of COSMOS sources with intrinsic FWHM $<0.2$~arcsec,
-as measured with {\it HST}.  Our conclusions are as follows:
+{\it ugriz} photometry of COSMOS sources with intrinsic FWHM
+$<0.2$~arcsec, as measured with {\it HST}.  We have focused our
+analysis on the classification of full survey datasets with broad
+science goals, rather than on the classification of subsets of sources
+tailored to specific scientific investigations.
+
+Our conclusions are as follows:
 
 \begin{itemize}
 
@@ -883,11 +935,11 @@ as measured with {\it HST}.  Our conclusions are as follows:
   $\sim50-90\%$, and are a strong function of the relative sample
   fraction.
 
-\item We present a new Hierarchical Bayesian (HB) approach to template
+\item We present a new, basic Hierarchical Bayesian (HB) approach to template
   fitting which outperforms ML techniques, as shown by the Receiver
-  Operating Characteristic (ROC).  Our HB algorithm currently
-  optimizes the likelihood by only modifying prior weights for
-  template models.  Further improvements are possible by
+  Operating Characteristic (ROC).  HB algorithms have no need for training, 
+  and have nuisance parameters that are tuned according to the likelihood 
+  of the data itself.  Further improvements to this basic algorithm are possible by
   hierarchically modeling the redshift distribution of galaxies, the
   SEDs of the input templates, and the distribution of apparent
   magnitudes.
@@ -898,32 +950,69 @@ as measured with {\it HST}.  Our conclusions are as follows:
   training data.  For optimistic cases, where the training data is
   essentially a random sample of the data (with known
   classifications), SVM will outperform template fitting.  In a
-  pessimistic scenario, where the training data is from higher signal
-  to noise than the whole sample, SVM algorithms perform worse than
-  the simplest template fitting methods.
+  more-realistic scenario, where the training data samples only the
+  higher signal to noise sources in the data to be classified, SVM
+  algorithms perform worse than the simplest template fitting methods.
 
-\item HB algorithms have no need for training, and have nuisance
-  parameters that are tuned according to the likelihood of the data
-  itself.  Since it is unclear when, if ever, adequate training data
-  will be available for classification, HB algorithms may prove a to
-  be a useful approach for next-generation classifiers.
+\item It is unclear when, if ever, adequate training data
+  will be available for SVM-like classification, HB algorithms are 
+  likely the optimum choice for next-generation classifiers.
+
+\item A downside of a paucity of sufficient training data is the
+  inability to assess the performance of both supervised (SVM) and
+  unsupervised (ML, HB) classifiers.  If knowing the completeness and
+  purity in detail is critical to the survey science goals, it may be
+  necessary to seek out expensive training/testing sets.  Otherwise,
+  users will have to select the best unsupervised classifier (HB
+  here), and live with performance assessments extrapolated from other
+  studies.
+
+\item Ground based surveys should deliver probabilistic photometric 
+ classifications as a basic data product.  ML likelihoods are useful and 
+ require very little computational overhead, and should be considered the 
+ minimal delivered quantities.  Basic or refined HB classifications require 
+ more overhead, but can be run on small subsets of data to learn the 
+ priors and then run quickly on the remaining data, making them a feasible 
+ option for large surveys.  Finally, if excellent training 
+ data is available, SVM likelihoods should either be computed or the data 
+ should be made available.  In any scenario, we strongly recommend that 
+ likelihood values, not binary classifications, should be delivered so that 
+ they may be propagated into individual analyses.
 
 \end{itemize}
+
+The future of astronomical studies of unresolved sources in ground
+based surveys is bright.  Surveys like PanSTARRS, DES, and LSST will
+deliver data that, in conjunction with approaches discussed here, will
+expand our knowledge of stellar systems, the structure of the Milky
+Way, and the demographics of distant galaxies.  We have identified
+troublesome spots for classification in single-epoch $ugriz$
+photometric data, which may hinder studies of M-giant and metal-poor
+main-sequence turnoff stars in the Milky Way's halo.  Future studies
+could improve upon our preliminary results by impleneting
+more-sophisticated prior distributions, by identifying crucial
+improvements needed in current template models or training data, or by
+pursuing complementary non-SED based classification metrics.
 
 \acknowledgments
 
 We gratefully acknowledge P. Capak and the COSMOS team for providing
-an up-to-date version of their catalog, C.-C. Chang and C.-C. Lin
-for making their SVM routines available, and the {\tt Le Phare}
-photo-z team for making code and templates available.  We also thank
-J. Newman, Paul Thorman and his office mate, Mario Juric, \rf{insert others??} for helpful and insightful
-conversations.  \rf{insert grant info}
+an up-to-date version of their catalog, C.-C. Chang and C.-C. Lin for
+making their SVM routines available, J. J. Bochanski for providing his 
+stellar templates, and the {\tt Le Phare} photo-z
+team for making code and templates available.  We also thank J.
+Newman, P. Thorman, S. J. Schmidt, M. Juric, \rf{insert
+others??} for helpful and insightful conversations.  RF and BW also thank 
+the NYU Center for Cosmology and Particle Physics, and 
+Drexel University's Physics Dept. for hosting them during the writing of 
+this paper.  RF and BW acknowledge support from NSF grant AST 
+0908193 \rf{Hogg grant info}
 
 
 \clearpage
 
 \bibliographystyle{apj}
-\begin{thebibliography}{39}
+\begin{thebibliography}{44}
 
 \bibitem[{{Arnouts} {et~al.}(1999){Arnouts}, {Cristiani}, {Moscardini},
   {Matarrese}, {Lucchin}, {Fontana}, \& {Giallongo}}]{arnouts99}
@@ -934,6 +1023,11 @@ conversations.  \rf{insert grant info}
   {Covey}}]{bochanski07}
 {Bochanski}, J.~J., {West}, A.~A., {Hawley}, S.~L., \& {Covey}, K.~R. 2007,
   \aj, 133, 531
+
+\bibitem[{Boser {et~al.}(1992)Boser, Guyon, \& Vapnik}]{boser92}
+Boser, B.~E., Guyon, I.~M., \& Vapnik, V.~N. 1992, in Proceedings of the fifth
+  annual workshop on Computational learning theory, COLT '92 (New York, NY,
+  USA: ACM), 144--152
 
 \bibitem[{{Capak} {et~al.}(2007{\natexlab{a}}){Capak}, {Aussel}, {Ajiki},
   {McCracken}, {Mobasher}, {Scoville}, {Shopbell}, {Taniguchi}, {Thompson},
@@ -1002,12 +1096,14 @@ Gelman, A., Carlin, J.~B., Stern, H.~S., \& Rubin, D.~B. 2003, Bayesian Data
 \bibitem[{{Hildebrandt} {et~al.}(2010)}]{hildebrandt10}
 {Hildebrandt}, H., {et~al.} 2010, arXiv:1008.0658
 
-\bibitem[{{Hogg} {et~al.}(2010b){Hogg}, {Bovy}, \& {Lang}}]{hogg10}
-{Hogg}, D.~W., {Bovy}, J., \& {Lang}, D. 2010, arXiv:1008.4686
+\bibitem[{{Hogg} {et~al.}(2010{\natexlab{a}}){Hogg}, {Bovy}, \&
+  {Lang}}]{hogg10a}
+{Hogg}, D.~W., {Bovy}, J., \& {Lang}, D. 2010{\natexlab{a}}, arXiv:1008.4686
 
-\bibitem[Hogg {et~al.}(2010a){Hogg}, {Myers}, \& {Bovy}]{eccentricity}
-  Hogg,~D.~W., Myers,~A.~D., \& Bovy,~J., 2010b,
-  ``Inferring the eccentricity distribution'', arXiv:1008.4146
+\bibitem[{{Hogg} {et~al.}(2010{\natexlab{b}}){Hogg}, {Myers}, \&
+  {Bovy}}]{hogg10b}
+{Hogg}, D.~W., {Myers}, A.~D., \& {Bovy}, J. 2010{\natexlab{b}}, \apj, 725,
+  2166
 
 \bibitem[{{Ilbert} {et~al.}(2006){Ilbert}, {Arnouts}, {McCracken},
   {Bolzonella}, {Bertin}, {Le F{\`e}vre}, {Mellier}, {Zamorani}, {Pell{\`o}},
@@ -1041,6 +1137,19 @@ Gelman, A., Carlin, J.~B., Stern, H.~S., \& Rubin, D.~B. 2003, Bayesian Data
   {Bongiorno}, {Busarello}, {Lamareille}, {Mellier}, {Merluzzi}, {Ripepi}, \&
   {Rizzo}}]{lefevre05}
 {Le F{\`e}vre}, O. {et~al.} 2005, \aap, 439, 877
+
+\bibitem[{{Mandel} {et~al.}(2011){Mandel}, {Narayan}, \& {Kirshner}}]{mandel11}
+{Mandel}, K.~S., {Narayan}, G., \& {Kirshner}, R.~P. 2011, \apj, 731, 120
+
+\bibitem[{{Mandel} {et~al.}(2009){Mandel}, {Wood-Vasey}, {Friedman}, \&
+  {Kirshner}}]{mandel09}
+{Mandel}, K.~S., {Wood-Vasey}, W.~M., {Friedman}, A.~S., \& {Kirshner}, R.~P.
+  2009, \apj, 704, 629
+
+\bibitem[{M{\"u}ller {et~al.}(2001)M{\"u}ller, Mika, R{\"a}tsch, Tsuda, \&
+  Sch{\"o}lkopf}]{muller01}
+M{\"u}ller, K.-R., Mika, S., R{\"a}tsch, G., Tsuda, K., \& Sch{\"o}lkopf, B.
+  2001, IEEE Neural Networks, 12, 181
 
 \bibitem[{{Pickles}(1998)}]{pickles98}
 {Pickles}, A.~J. 1998, \pasp, 110, 863
@@ -1150,7 +1259,6 @@ Gelman, A., Carlin, J.~B., Stern, H.~S., \& Rubin, D.~B. 2003, Bayesian Data
 {Zamojski}, M.~A. {et~al.} 2007, \apjs, 172, 468
 
 \end{thebibliography}
-
 
 \appendix
 \section{Hierarchical Bayesian Star--Galaxy Classification}
