@@ -1,4 +1,4 @@
-Star-galaxy Classification in Multi-Band Optical Imaging
+Star-galaxy Classification
 =====
 
 Ross Fadely, David W. Hogg, and Beth Willman
