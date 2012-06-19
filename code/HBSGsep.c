@@ -27,38 +27,19 @@
 // MUST CHANGE THE FOLLOWING
 // *************************
 
-/*
- // Input Files
- char filtersinput[]  = "YOUR_PATH";
- char galssedinput[]  = "YOUR_PATH";
- char starssedinput[] = "YOUR_PATH";
- char hypinfile[]     = "YOUR_PATH";
- 
- // Data File 
- char datafile[] = "YOUR_PATH";
- 
- // Output Files
- char hypoutfile[]         = "YOUR_PATH";
- char lnlikeratiooutfile[] = "YOUR_PATH";
- char lnPtotfile[]         = "YOUR_PATH";
- char starmodmagsfile[]    = "YOUR_PATH";
- char galmodmagsfile[]     = "YOUR_PATH";
- char starchi2file[]       = "YOUR_PATH";
- char galchi2file[]        = "YOUR_PATH";*/
 
 // Input Files
-char filtersinput[]  = "/Users/rossfadely/Dropbox/SG/input/cosmos_ugriz.in";
-char galssedinput[]  = "/Users/rossfadely/Dropbox/SG/input/maingalsseds.in";
-char starssedinput[] = "/Users/rossfadely/Dropbox/SG/input/stars_mixed.in";
-
-// Data File
-char datafile[] = "/Users/rossfadely/Dropbox/SG/data/cosmos_capak_22.5r25_fwhm0.2.fits";
-
+char filtersinput[]  = "YOUR_PATH";
+char galssedinput[]  = "YOUR_PATH";
+char starssedinput[] = "YOUR_PATH";
+ 
+// Data File 
+char datafile[] = "YOUR_PATH";
+ 
 // Output Files
-char hypoutfile[]         = "/Users/rossfadely/Dropbox/SG/output/fooh_full_fifth.fits";
-char lnlikeratiooutfile[] = "/Users/rossfadely/Dropbox/SG/output/foolsss_full_fifth.fits";
-char lnPtotfile[]         = "/Users/rossfadely/Dropbox/SG/output/fooo.dat";
-
+char hypoutfile[]         = "YOUR_PATH";
+char lnlikeratiooutfile[] = "YOUR_PATH";
+char lnPtotfile[]         = "YOUR_PATH";
 
 // Analysis variables
 double zmin       = 0.0;
@@ -76,13 +57,13 @@ float tol         = 1.0e-1;
 
 
 // Input Files
-char hypinfile[]     = "/Users/rossfadely/Dropbox/SG/output/fooh_fifth.fits";
+char hypinfile[]     = "YOUR_PATH";
 
 // Output Files
-char starmodmagsfile[]    = "/Users/rossfadely/Dropbox/SG/output/foooms.dat";
-char galmodmagsfile[]     = "/Users/rossfadely/Dropbox/SG/output/fooomg.dat";
-char starchi2file[]       = "/Users/rossfadely/Dropbox/SG/output/fooog.dat";
-char galchi2file[]        = "/Users/rossfadely/Dropbox/SG/output/fooos.dat";
+char starmodmagsfile[]    = "YOUR_PATH";
+char galmodmagsfile[]     = "YOUR_PATH";
+char starchi2file[]       = "YOUR_PATH";
+char galchi2file[]        = "YOUR_PATH";
 
 
 // Analysis variables
