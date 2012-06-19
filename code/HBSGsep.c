@@ -88,114 +88,114 @@ long writeminchi2    = 0;
  **********************************************************************/
 int main(int argc, char **argv) {
 	
-	long ii,jj;
+    long ii,jj;
 	
-	// Setup timing
-	time_t  t0; 
-	t0 = time(NULL);
+    // Setup timing
+    time_t  t0; 
+    t0 = time(NULL);
 	
-	// Do Filter Calcs	
-	filter_calcs();
+    // Do Filter Calcs	
+    filter_calcs();
 	
-	// Read Data, and do calculate fluxes, etc.
-	data_calcs();
+    // Read Data, and do calculate fluxes, etc.
+    data_calcs();
 	
-	// Calculate models for stars	
-	star_model_calcs();
+    // Calculate models for stars	
+    star_model_calcs();
 	
-	// If desired, calculate star model mags
-	if (calc_model_mags==1) {
-		star_model_mags();
-	}
+    // If desired, calculate star model mags
+    if (calc_model_mags==1) {
+        star_model_mags();
+    }
 	
-	// Calculate models for gals	
-	gal_model_calcs();
+    // Calculate models for gals	
+    gal_model_calcs();
 	
-	// If desired, calculate gal model mags
-	if (calc_model_mags==1) {
-		gal_model_mags();
-	}
+    // If desired, calculate gal model mags
+    if (calc_model_mags==1) {
+        gal_model_mags();
+    }
 	
-	// Fit the templates to calculate the 
-	// coefficient priors and make sparse 
-	// arrays for optimizer.	
-	fit_calcs();
-	
-	
-	
-	// Assign global number of hyperparameters
-	Nstarhyperparms = Nstartemplate;
-	Ngalhyperparms  = Ngaltemplate;
-	Nhyperparms     = Nstarhyperparms+Ngalhyperparms+2;
+    // Fit the templates to calculate the 
+    // coefficient priors and make sparse 
+    // arrays for optimizer.	
+    fit_calcs();
 	
 	
-	// Time to optimize.  Its useful to call 
-	// this more than once, hence we read in 
-	// the values of the hyperparameters from 
-	// the preceding runs.
-	if (Niter>0) {
+	
+    // Assign global number of hyperparameters
+    Nstarhyperparms = Nstartemplate;
+    Ngalhyperparms  = Ngaltemplate;
+    Nhyperparms     = Nstarhyperparms+Ngalhyperparms+2;
+	
+	
+    // Time to optimize.  Its useful to call 
+    // this more than once, hence we read in 
+    // the values of the hyperparameters from 
+    // the preceding runs.
+    if (Niter>0) {
 		
-		count_tot = 0;
+        count_tot = 0;
 		
-	    optimize();
-	    usehypin = 1;
-	    optimize();
+        optimize();
+        usehypin = 1;
+        optimize();
 	    
-		// Write the log likelihood ratios to file
-	    write_lnlikeratio(lnlikeratiooutfile,lnlikeratio);
-	}
+        // Write the log likelihood ratios to file
+        write_lnlikeratio(lnlikeratiooutfile,lnlikeratio);
+    }
 	
 	
 	
-	//  Write minimum chi2 values, if desired
-	if (writeminchi2 == 1) {
-		write_minchi2(starchi2file,"min_star_chi2",1);
-		write_minchi2(galchi2file,"min_gal_chi2",1);
-	}	
+    //  Write minimum chi2 values, if desired
+    if (writeminchi2 == 1) {
+        write_minchi2(starchi2file,"min_star_chi2",1);
+        write_minchi2(galchi2file,"min_gal_chi2",1);
+    }	
 	
 	
-	// Cleanup allocated memory
-	for (ii=0; ii<Nfilter; ii++) {
-		free(filter_lamb_fine[ii]);
-		free(filter_thru_fine[ii]);	
-		free(dataflux[ii]);
-		free(datafluxerr[ii]);
-		free(modelflux_stars[ii]);
-		free(modelflux_gals[ii]);
-	}
-	free(dataflux);
-	free(datafluxerr);
-	free(modelflux_stars);
-	free(modelflux_gals);
-	free(norm);
-	free(filter_lamb_fine);
-	free(filter_thru_fine);	
-	free(filter_lgth_fine);	
-	for (jj=0; jj<3; jj++) {
-		for (ii=0; ii<Ndata; ii++) {
-			free(starsparse[jj][ii]);
-		}
-		free(starsparse[jj]);
-	}
-	free(starsparse);
-	for (jj=0; jj<3; jj++) {
-		for (ii=0; ii<Ndata; ii++) {
-			free(galsparse[jj][ii]);
-		}
-		free(galsparse[jj]);
-	}
-	free(galsparse);
-	free(star_coeff_mean);
-	free(star_coeff_var);
-	free(star_minchi);
-	free(gal_minchi);
+    // Cleanup allocated memory
+    for (ii=0; ii<Nfilter; ii++) {
+        free(filter_lamb_fine[ii]);
+        free(filter_thru_fine[ii]);	
+        free(dataflux[ii]);
+        free(datafluxerr[ii]);
+        free(modelflux_stars[ii]);
+        free(modelflux_gals[ii]);
+    }
+    free(dataflux);
+    free(datafluxerr);
+    free(modelflux_stars);
+    free(modelflux_gals);
+    free(norm);
+    free(filter_lamb_fine);
+    free(filter_thru_fine);	
+    free(filter_lgth_fine);	
+    for (jj=0; jj<3; jj++) {
+        for (ii=0; ii<Ndata; ii++) {
+            free(starsparse[jj][ii]);
+        }
+        free(starsparse[jj]);
+    }
+    free(starsparse);
+    for (jj=0; jj<3; jj++) {
+        for (ii=0; ii<Ndata; ii++) {
+            free(galsparse[jj][ii]);
+        }
+        free(galsparse[jj]);
+    }
+    free(galsparse);
+    free(star_coeff_mean);
+    free(star_coeff_var);
+    free(star_minchi);
+    free(gal_minchi);
 
 	
-	// Print elapsed time	
-	printf("\n\nDONE!!!!\n\n");
-	printf ("Elapsed time (s): %ld\n", (long) (time(NULL) - t0));
+    // Print elapsed time	
+    printf("\n\nDONE!!!!\n\n");
+    printf ("Elapsed time (s): %ld\n", (long) (time(NULL) - t0));
 	
-	return 0;
+    return 0;
 }
 
 
