@@ -1,22 +1,3 @@
-% Notes for RF from Hogg:
-% -----------------------
-% (feel free to over-rule me on any of these)
-% - don't use $all$ for emphasis, use \emph{all}
-% - use ``arcsec'' not '' for units
-% - avoid latin abbrevs like e.g. except in reference lists
-
-% to-do
-% -----
-% - clean up
-% - send to friendlies for comments
-% - submit
-% - put on the arXiv
-% - get famous
-
-% style notes
-% -----------
-% - define re-used symbols
-% - use \, (thin space) for multiply
 
 %%%%%%%%%%%%%%%
 % Define a switch for submission mode
@@ -53,7 +34,6 @@
    \documentclass{emulateapj}
    \submitted{{\it To be submitted for publication in AJ}}
 \fi
-%\usepackage{amssymb,amsmath,mathrsfs,url}
 \usepackage{amssymb,amsmath,mathrsfs,hyperref,datetime}
 
 \newcommand{\datavector}[1]{\boldsymbol{#1}}
@@ -69,7 +49,6 @@
 \def\urltilda{\kern -.15em\lower .7ex\hbox{\~{}}\kern .04em}
 
 \pdfoutput=1
-\slugcomment{draft 2012-2-04 not ready for distribution}
 
 \begin{document}
 
@@ -82,11 +61,11 @@
 \altaffiltext{3}{Max-Planck-Institut f\"ur Astronomie, K\"onigstuhl 17, 69117 Heidelberg, Germany}
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % 					Abstract
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{abstract}
   Ground-based optical surveys such as PanSTARRS, DES, and LSST, will
   produce large catalogs to limiting magnitudes of $r \gtrsim 24$.
@@ -113,7 +92,7 @@
   that studies of M-giant and metal-poor main-sequence turnoff stars
   may be 
   most affected by poor star-galaxy separation.  We measure the area 
-  under the Receiver Operating Characteristic curve (AUC) to assess the 
+  under the Receiver Operating Characteristic curve to assess the 
   relative performance of the approaches and find a best-to-worst 
   ranking of SVM$_{best}$, HB, ML, and SVM$_{real}$.  We conclude, therefore, that a well
   trained SVM will outperform template-fitting methods.  However, a
@@ -123,11 +102,11 @@
   here is made publicly available.
 \end{abstract}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % 					Section - Introduction
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
 
 Until now, the primary way that stars and galaxies have been
@@ -145,7 +124,7 @@ apparent magnitudes.
 To demonstrate this challenge for studies of field stars in the Milky Way (MW),
 we compare the number of stars to the number of unresolved galaxies at
 faint apparent magnitudes.  Figure~\ref{fig:stellarfraction} shows the
-fraction of COSMOS sources that are stars as a function of $r$
+fraction of COSMOS sources that are classified as stars as a function of $r$
 magnitude and angular size.  The COSMOS catalog \citep[($l,b$) $\sim$ (237,43)
 degrees, ][]{capak07a,scoville07b,ilbert09} relies on 30-band photometry
 plus HST/ACS morphology for source classification (see Section 4 for
@@ -161,7 +140,7 @@ magnitudes while the number density of disk red dwarf stars increases at
 faint magnitudes.
 \begin{figure}
 \centering
- %\includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{fig1.pdf}
+ \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{fig1.pdf}
 \caption{The stellar fraction of COSMOS sources as a function of
   magnitude, for sources with $g-r<1$ (left) and $g-r>1$ (right).
   Only stars and galaxies were included in this figure; Only a few
@@ -184,8 +163,8 @@ by unresolved galaxies by $r\sim22.5$ and are devastated by unresolved
 galaxies at fainter magnitudes. The problem is far less severe for
 studies of red stars, which may dominate point source counts for
 $r\lesssim24$. Although morphological identification of galaxies with
-FWHM as small as $0.2$~arcsec is better than possible the Sloan Digital Sky
-Survey, which had a median seeing of $\sim1.3$~arcsec, future surveys with
+FWHM as small as $0.2$~arcsec is better than possible for the Sloan Digital Sky
+Survey (median seeing $\sim1.3$~arcsec), future surveys with
 higher median image quality (for example, $0.7$~arcsec predicted for LSST) may
 approach this limit.
 
@@ -247,11 +226,11 @@ of the algorithms, and discuss the advantages and limitations related
 to their use as classifiers.
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % 					Section - Methodology
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Probabilistic Photometric Classification Techniques}
 
 \subsection{Template Fitting: Maximum Likelihood (ML)}
@@ -387,6 +366,13 @@ where the data is of lower signal to noise (described in Section
 \ref{sec:data}), and the number of unresolved galaxies is comparable
 to or larger than the number of stars.
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% 					Section - Data
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \section{Test Data}
 \label{sec:data}
 
@@ -436,7 +422,7 @@ P. Capak (private communication).
 
 Throughout this paper, we restrict our analysis to sources likely to
 be unresolved in ground based data (FWHM$_{HST/ACS}$ $< 0.2$~arcsec).  We
-do so since tried and true morphological classification criteria will
+do so since commonly used morphological classification criteria will
 easily distinguish quite extended sources, accounting for a majority
 of galaxies to depths of $r\sim24-25$.  However, galaxies with angular
 sizes $< 0.2$~arcsec are unlikely to be resolved in surveys with seeing
@@ -453,7 +439,7 @@ should be below the few-percent level for the sample we use here.
 
 \begin{figure}
 \centering
- %\includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{fig2.pdf}
+ \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{fig2.pdf}
 \caption{The color--color space distribution of point sources (FWHM $<
   0.2$~arcsec) in the COSMOS catalog.  It is clear that stars in the sample
   follow a tight locus in all slices of color--color space, while
@@ -462,6 +448,12 @@ should be below the few-percent level for the sample we use here.
   for bluer sources.}
 \label{fig:color-color-data}
 \end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% 					Section - Specifics
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 \section{Implementation of Three Star--Galaxy Classifiers}
@@ -478,7 +470,7 @@ Template based star--galaxy classification relies on the use of
 spectral energy distribution templates which (as well as possible)
 span the space of colors for both stars and galaxies.  For our stellar
 model library, we first adopt the \citet{pickles98} set of empirically
-derived SEDs, which span O5 to M10 stars for both main sequence,
+derived SEDs, which span O to M type stars for both main sequence,
 giant, and supergiant stars.  The vast majority of the SEDs in the
 Pickles library have solar abundances, so we supplement the library
 with theoretical SEDs from Castelli-Kurucz (CK) \citep{castelli04a}.
@@ -633,6 +625,13 @@ performance is obtained if the SVM$_{real}$ training data is scaled to
 itself rather than to the test data.
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% 					Section - Results
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 \section{Results and Discussion}
 \label{sec:results}
 
@@ -661,7 +660,7 @@ COSMOS sources severely undermines the efficacy of SVM$_{real}$.
 
 \begin{figure}
 \centering
-% \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{fig3.pdf}
+ \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{fig3.pdf}
 \caption{The completeness as a function of magnitude produced by the
   indicated classification approaches.  Results for stars are on the
   left in green, while those for galaxies are shown on the right in
@@ -688,7 +687,7 @@ completeness by $\sim15\%$.
 
 \begin{figure}
 \centering
-% \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{fig4.pdf}
+ \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{fig4.pdf}
 \caption{Similar to Figure \ref{fig:completeness} but showing purity
   of classified samples, instead of completeness. Results for stars
   are on the left in green, while those for galaxies are shown on the
@@ -767,7 +766,7 @@ and in future algorithm development.
 
 \begin{figure}
 \centering
- %\includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{fig5.pdf}
+ \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{fig5.pdf}
 \caption{The fraction of objects correctly classified at
   $\ln(\Omega)=0$ using our HB template fitting, distributed in {\it
     ugriz} color-color space.  The top panel shows the performance on stars, and the bottom panel shows the performance on galaxies.  Comparing with Figure
@@ -779,7 +778,7 @@ and in future algorithm development.
 
 \begin{figure}
 \centering
- %\includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{fig6.pdf}
+ \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{fig6.pdf}
 \caption{The same as Figure \ref{fig:color-color-hb-fraction}, but for
   a SVM trained with data which span the S/N range of the whole sample
   (SVM$_{best}$).  The top panel shows the performance on stars, and
@@ -789,10 +788,6 @@ and in future algorithm development.
   poor galaxy classification of HB compared to SVM$_{best}$ in $u-g$.
   This may indicate a model deficiency in the $u$ spectral range of
   our galaxy templates.}
-  % poor performing star areas are M-giants and blue, metal poor turnoff stars
-  % poor performing galaxy areas are ellipticals with 1.3<z<1.65 (unlikely), S0 
-  % through SA/B at low z<0.4 redshift, and possibly dusty starbursts at various 
-  % redshifts  
 \label{fig:color-color-svm-fraction}
 \end{figure}
 
@@ -820,7 +815,7 @@ color space.
 
 \begin{figure}
 \centering
-% \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{fig7.pdf}
+ \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{fig7.pdf}
 \caption{Hierarchical Bayesian template fitting results showing
   completeness (solid) and purity (dashed) lines as a function of
   $\ln\Omega$.  Results for stars are shown in green and galaxies are
@@ -841,7 +836,7 @@ color space.
 
 \begin{figure}
 \centering
-% \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{fig8.pdf}
+ \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{fig8.pdf}
 \caption{The median $\ln(\Omega)$ of objects produced by our HB
   template fitting, distributed in {\it ugriz} color-color space.
   Similar to Figure \ref{fig:color-color-hb-fraction}, regions with
@@ -890,12 +885,16 @@ likely only capture the high
 S/N end of the survey in question.  As shown in Figure \ref{fig:roc},
 a SVM$_{real}$ scenario underperforms even ML template fitting,
 casting severe doubt onto the usefulness of SVM with ill-suited
-training information.
+training information.  Future surveys which intend to use supervised 
+techniques, therefore, will have to carefully consider if alternate strategies 
+for obtaining training data \citep[e.g.,][]{richards12a,richards12b} can 
+outperform template fitting methods. 
+
 
 
 \begin{figure}
 \centering
-% \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{fig9.pdf}
+ \includegraphics[clip=true, trim=0cm 0cm 0.0cm 0.cm,width=8cm]{fig9.pdf}
 \caption{The Receiver Operating Characteristic (ROC) curve for four photometric 
 classification approaches: SVM$_{best}$, SVM$_{real}$, ML, and HB.  The ROC curve 
 shows the true positive rate versus the false positive rate, as $\ln(\Omega)$ varies.  An ideal classifier 
@@ -904,6 +903,12 @@ general assessment of the performance.}
 \label{fig:roc}
 \end{figure}
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% 					Section - Conclusion
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 \section{Conclusions}
@@ -963,7 +968,7 @@ Our conclusions are as follows:
   purity in detail is critical to the survey science goals, it may be
   necessary to seek out expensive training/testing sets.  Otherwise,
   users will have to select the best unsupervised classifier (HB
-  here), and live with performance assessments extrapolated from other
+  here), and rely on performance assessments extrapolated from other
   studies.
 
 \item Ground based surveys should deliver probabilistic photometric 
@@ -1164,6 +1169,14 @@ M{\"u}ller, K.-R., Mika, S., R{\"a}tsch, G., Tsuda, K., \& Sch{\"o}lkopf, B.
   {Gould}}]{reitzel98a}
 {Reitzel}, D.~B., {Guhathakurta}, P., \& {Gould}, A. 1998, \aj, 116, 707
 
+\bibitem[{{Richards} {et~al.}(2012a){Richards}, {Starr}, {Brink}, {Miller} 
+{Bloom}, {Butler}, {James}, {Long},\& {Rice}}]{richards12a}
+{Richards}, J.~W., {et~al.}, \apj, 744, 192
+
+\bibitem[{{Richards} {et~al.}(2012b){Richards}, {Homrighausen}, 
+{Freeman}, {Schafer}, \& {Poznanski}}]{richards12b}
+{Richards}, J.~W., {et~al.}, \mnras, 419, 1121
+
 \bibitem[{{Robin} {et~al.}(2007)}]{robin07}
 {Robin}, A.~C., {et~al.} 2007, \apjs, 172, 545
 
@@ -1276,7 +1289,7 @@ uncertainty in filter number $l$ for $N$ number of filters.  One
 sequence for the filters $l$ correspond to $\{l\}=\{u,g,r,i,z\}$. The 
 zeropoint, $F_{l,0}$, is:
 \begin{eqnarray}\displaystyle
-F_{l,0}=\int \lambda S_\lambda R_{\lambda, l} \dd \lambda
+F_{l,0}=\int \lambda \,S_\lambda\,R_{\lambda, l} \dd \lambda
 \quad ,
 \end{eqnarray}
 where $S_\lambda$ is the standard flux density spectrum (Vega or AB), and 
@@ -1286,14 +1299,14 @@ of wavelength.
 
 Next, we generate a model for the data using the templates:
 \begin{eqnarray}\displaystyle
-F_{{\rm mod},l} & = & \int  \lambda f_{\lambda,{\rm mod}} R_{\lambda,l} {\rm d}\lambda\,
+F_{{\rm mod},l} & = & \int  \lambda\,f_{\lambda,{\rm mod}}\,R_{\lambda,l} \dd \lambda\,
 \quad ,
 \end{eqnarray}
 where $f_{\lambda,{\rm mod}}$ corresponds to the flux density 
 of a given spectral template.  Finally, we define a goodness of 
 fit statistic:
 \begin{eqnarray}\displaystyle\label{eqn:chi}
-\chi^2 & = & \sum\limits_{l=1}^N \frac{(F_l-C_{\rm mod}F_{{\rm mod},l})^2}{\sigma_{{\rm total}_l}^2}
+\chi^2 & = & \sum\limits_{l=1}^N \frac{(F_l-C_{\rm mod}\,F_{{\rm mod},l})^2}{\sigma_{{\rm total}_l}^2}
 \quad ,
 \end{eqnarray}
 where $C_{\rm mod}$ is a constant unitless amplitude applied to the 
