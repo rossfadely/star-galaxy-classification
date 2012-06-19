@@ -57,10 +57,10 @@ void coeff_calcs(void) {
     for (ii=0;ii<Ngaltemplate;ii++) {
         for (jj=0; jj<Nz; jj++) {
 			
-	    fit_gal_template(ii,jj,gal_lncoeff,gal_coeffvar,gal_chi2);
-	    coeff_meanvar(0,ii*Nz+jj,gal_lncoeff,gal_coeffvar,gal_chi2);
+            fit_gal_template(ii,jj,gal_lncoeff,gal_coeffvar,gal_chi2);
+            coeff_meanvar(0,ii*Nz+jj,gal_lncoeff,gal_coeffvar,gal_chi2);
 			
-	}
+        }
     }
     free(gal_lncoeff);
     free(gal_coeffvar);

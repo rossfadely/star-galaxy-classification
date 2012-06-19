@@ -18,10 +18,9 @@
 
 void printfitserror(int status) {
 
-    if (status)
-    {
-		fits_report_error(stderr, status); 	
-		exit(status);
+    if (status){
+        fits_report_error(stderr, status); 	
+        exit(status);
     }
     return;
 }

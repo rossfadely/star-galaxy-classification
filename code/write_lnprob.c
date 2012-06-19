@@ -19,17 +19,17 @@
 
 void write_lnprob(long ii,double lnPtot) {
 	
-	extern char lnPtotfile[FILEPATH_LENGTH];
+    extern char lnPtotfile[FILEPATH_LENGTH];
 
-	FILE *fp;
+    FILE *fp;
 	
-	if (ii==0) {
-		fp = fopen(lnPtotfile,"w");
-		fprintf(fp,"\n");
-		fclose(fp);
-	}
+    if (ii==0) {
+        fp = fopen(lnPtotfile,"w");
+        fprintf(fp,"\n");
+        fclose(fp);
+    }
 	
-	fp = fopen(lnPtotfile,"a+");  	
-	fprintf(fp,"%ld %g\n",ii,lnPtot);
-	fclose(fp);
+    fp = fopen(lnPtotfile,"a+");  	
+    fprintf(fp,"%ld %g\n",ii,lnPtot);
+    fclose(fp);
 }

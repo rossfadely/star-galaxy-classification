@@ -20,14 +20,14 @@
 void calc_P_F_G(long ii,double *hypparms_gals,double *P_F_G) {
 	
 	
-	long jj,index;
+    long jj,index;
 	
-	for (jj=0; jj<(long)galsparse[0][ii][0]; jj++) {
+    for (jj=0; jj<(long)galsparse[0][ii][0]; jj++) {
 		
-		index = (long)galsparse[1][ii][jj];
+        index = (long)galsparse[1][ii][jj];
 	
-		P_F_G[ii] += hypparms_gals[index] * galsparse[2][ii][jj]; 
-
-	}
+        P_F_G[ii] += hypparms_gals[index] * galsparse[2][ii][jj]; 
+        
+    }
 	
 }

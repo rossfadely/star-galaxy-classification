@@ -70,7 +70,7 @@ void write_modelmags(char *outfile,long Nmodels,double **modelmags) {
         printfitserror(status);	
 	
     if (fits_create_tbl(fptr,BINARY_TBL,Nmodels,tfields,ttype,tform,tunit, \
-						extname,&status))
+                        extname,&status))
         printfitserror(status);	
 	
     for (kk=0; kk<Nfilter; kk++) {

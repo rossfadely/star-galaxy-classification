@@ -29,17 +29,17 @@ void count_data(char *datafile,long *N) {
     status    = 0;
 	
     if (fits_open_file(&fptr, datafile, READONLY, &status))
-		printfitserror(status);
+        printfitserror(status);
 	
     if (fits_movabs_hdu(fptr, hdunum, &hdutype, &status)) 
-		printfitserror(status);
+        printfitserror(status);
 	
     fits_get_num_rows(fptr,&nrow,&status);
 	
     *N = nrow;
 	
     if (fits_close_file(fptr, &status)) 
-		printfitserror(status);
+        printfitserror(status);
 }
 
 

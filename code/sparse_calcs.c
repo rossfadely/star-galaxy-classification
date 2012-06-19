@@ -10,9 +10,8 @@
 //
 // sparce_calcs.c
 //
-// Calculate the likelihoods marginalized over everything accept 
-// template.
-//
+// Call functions to save the marginalized likelihood (over coefficient)
+// for all templates above the probability threshold.
 // 
 
 #include "HBSGsep.h"
@@ -23,10 +22,10 @@ void sparse_calcs(void) {
 	
     starsparse = (double ***)malloc(3*sizeof(double **));
     for (ii=0; ii<3; ii++) {
-		if(!(starsparse[ii] = (double **)malloc(Ndata*sizeof(double *)))) {
-			printf("Failed to allocate star sparse memory in sparse_calcs\n");
-			return;
-		}
+        if(!(starsparse[ii] = (double **)malloc(Ndata*sizeof(double *)))) {
+            printf("Failed to allocate star sparse memory in sparse_calcs\n");
+            return;
+        }
     }
 	
 	
@@ -34,14 +33,14 @@ void sparse_calcs(void) {
         calc_P_F_kS(ii);
     }
 
-	printf("\n\n");
+    printf("\n\n");
 	
     galsparse=(double ***)malloc(3*sizeof(double **));
     for (ii=0; ii<3; ii++) {
         if(!(galsparse[ii] = (double **)malloc(Ndata*sizeof(double *)))) {
-			printf("Failed to allocate galaxy sparse memory in sparse_calcs\n");
-			return;
-		}
+            printf("Failed to allocate galaxy sparse memory in sparse_calcs\n");
+            return;
+        }
     }
 	
     for (ii=0; ii<Ndata; ii++) {

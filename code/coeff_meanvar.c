@@ -17,7 +17,7 @@
 #include "HBSGsep.h"
 
 void coeff_meanvar(int flag,long ii,double *lncoeff_in,double *coeffvar, \
-				   double *chi2) {
+                   double *chi2) {
 
     long jj;
     double *weight,*lncoeff;
@@ -27,28 +27,28 @@ void coeff_meanvar(int flag,long ii,double *lncoeff_in,double *coeffvar, \
     // Loop over the data
     for (jj=0; jj<Ndata; jj++) {
         weight[jj]  = 1.0 / coeffvar[jj];
-		lncoeff[jj] = lncoeff_in[jj];
+        lncoeff[jj] = lncoeff_in[jj];
     }
 	
     if (flag==0) {
         gal_coeff_mean[ii] = gsl_stats_wmean(weight,1,lncoeff,1,Ndata);
-		gal_coeff_var[ii]  = gsl_stats_wvariance(weight,1,lncoeff,1,Ndata);
+        gal_coeff_var[ii]  = gsl_stats_wvariance(weight,1,lncoeff,1,Ndata);
 		
-		if (Ndata<10)
-			gal_coeff_var[ii]  = gal_coeff_mean[ii] * -0.5;
+        if (Ndata<10)
+            gal_coeff_var[ii]  = gal_coeff_mean[ii] * -0.5;
 		
-		if (gal_coeff_var[ii]<0.0)
-			gal_coeff_var[ii] *= -1.0;
+        if (gal_coeff_var[ii]<0.0)
+            gal_coeff_var[ii] *= -1.0;
     } 
     if (flag==1) {
         star_coeff_mean[ii] = gsl_stats_wmean(weight,1,lncoeff,1,Ndata);
-		star_coeff_var[ii]  = gsl_stats_wvariance(weight,1,lncoeff,1,Ndata);
+        star_coeff_var[ii]  = gsl_stats_wvariance(weight,1,lncoeff,1,Ndata);
 		
-		if (Ndata<10)
-			star_coeff_var[ii]  = star_coeff_mean[ii] * -0.5;
+        if (Ndata<10)
+            star_coeff_var[ii]  = star_coeff_mean[ii] * -0.5;
 		
-		if (star_coeff_var[ii]<0.0)
-			star_coeff_var[ii] *= -1.0;
+        if (star_coeff_var[ii]<0.0)
+            star_coeff_var[ii] *= -1.0;
     }
 	
     free(weight);

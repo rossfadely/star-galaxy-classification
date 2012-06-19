@@ -46,24 +46,24 @@ void optimize(void) {
     if (usehypin!=0) {
 
         read_hyppars(hypinfile,hypparms);
-		for (ii=0; ii<Nhyperparms-2; ii++) {
-			gsl_vector_set(x,ii,log10(hypparms[ii]));
-		}
-		for (ii=Nhyperparms-2; ii<Nhyperparms; ii++) {
-			gsl_vector_set(x,ii,hypparms[ii]);
-		}
+        for (ii=0; ii<Nhyperparms-2; ii++) {
+            gsl_vector_set(x,ii,log10(hypparms[ii]));
+        }
+        for (ii=Nhyperparms-2; ii<Nhyperparms; ii++) {
+            gsl_vector_set(x,ii,hypparms[ii]);
+        }
 		
     } else {
 
-		for (ii=0; ii<Nstarhyperparms; ii++) {
-			gsl_vector_set(x,ii,log10(1.0/((double)Nstartemplate)));
-		}
-		for (ii=Nstarhyperparms; ii<Ngalhyperparms+Nstarhyperparms; ii++) {
-			gsl_vector_set(x,ii,log10(1.0/((double)Ngaltemplate)));
-		}
-		for (ii=Nhyperparms-2; ii<Nhyperparms; ii++) {
-			gsl_vector_set(x,ii,0.5);
-		}	
+        for (ii=0; ii<Nstarhyperparms; ii++) {
+            gsl_vector_set(x,ii,log10(1.0/((double)Nstartemplate)));
+        }
+        for (ii=Nstarhyperparms; ii<Ngalhyperparms+Nstarhyperparms; ii++) {
+            gsl_vector_set(x,ii,log10(1.0/((double)Ngaltemplate)));
+        }
+        for (ii=Nhyperparms-2; ii<Nhyperparms; ii++) {
+            gsl_vector_set(x,ii,0.5);
+        }
 		
     }
 	
@@ -91,22 +91,22 @@ void optimize(void) {
     gsl_multimin_fminimizer_set(s,&opt_func,x,ss);
     do {
 		
-		iter++;
-		status=gsl_multimin_fminimizer_iterate(s);
+        iter++;
+        status = gsl_multimin_fminimizer_iterate(s);
 		
-		if (status)
-			break;
+        if (status)
+            break;
 		
-		size   = gsl_multimin_fminimizer_size(s);
-		status = gsl_multimin_test_size(size,tol);
-		if (status==GSL_SUCCESS) {
-			doneflag = 1;
-			status   = gsl_multimin_fminimizer_iterate(s);
-		}
+        size   = gsl_multimin_fminimizer_size(s);
+        status = gsl_multimin_test_size(size,tol);
+        if (status==GSL_SUCCESS) {
+            doneflag = 1;
+            status   = gsl_multimin_fminimizer_iterate(s);
+        }
 		
-		if (count_tot % writeiter == 0) {
-			write_lnprob((iter-1),s->fval);
-		}
+        if (count_tot % writeiter == 0) {
+            write_lnprob((iter-1),s->fval);
+        }
 		
     } while (status==GSL_CONTINUE && iter < Niter);
     
@@ -118,9 +118,9 @@ void optimize(void) {
     hyptot=0.0;
     for (ii=0; ii<Nstarhyperparms; ii++) {
         hypparms[ii] = pow(10.,gsl_vector_get(s->x,ii));
-		hypparms[ii] = sqrt(hypparms[ii] * hypparms[ii]);
+        hypparms[ii] = sqrt(hypparms[ii] * hypparms[ii]);
 		
-		hyptot += hypparms[ii];
+        hyptot += hypparms[ii];
     }
     for (ii=0; ii<Nstarhyperparms; ii++) {
         hypparms[ii] /= hyptot;
@@ -128,29 +128,27 @@ void optimize(void) {
     hyptot=0.0;
     for (ii=Nstarhyperparms; ii<Ngalhyperparms+Nstarhyperparms; ii++) {
         hypparms[ii] = pow(10.,gsl_vector_get(s->x,ii));
-		hypparms[ii] = sqrt(hypparms[ii] * hypparms[ii]);
+        hypparms[ii] = sqrt(hypparms[ii] * hypparms[ii]);
 		
-		hyptot += hypparms[ii];
+        hyptot += hypparms[ii];
     }
-    printf("\n");
     for (ii=Nstarhyperparms; ii<Ngalhyperparms+Nstarhyperparms; ii++) {
         hypparms[ii] /= hyptot;
     }
     hyptot=0.0;
     for (ii=Nhyperparms-2; ii<Nhyperparms; ii++) {
         hypparms[ii] = gsl_vector_get(s->x,ii);
-		hypparms[ii] = sqrt(hypparms[ii] * hypparms[ii]);
+        hypparms[ii] = sqrt(hypparms[ii] * hypparms[ii]);
 		
-		hyptot += hypparms[ii];
+        hyptot += hypparms[ii];
     }
-    printf("\n");
     for (ii=Nhyperparms-2; ii<Nhyperparms; ii++) {
         hypparms[ii] /= hyptot;
     }
 	
 	
     //Show how we did
-    printf("\n\nSummary:\n");
+    printf("\n\n\n\nSummary:\n");
     printf("Initial loglikelihood: %g \n",lnPtot_start);
     printf("  Final loglikelihood: %g \n",old_lnPtot);
 		

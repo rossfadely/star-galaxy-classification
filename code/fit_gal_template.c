@@ -17,7 +17,7 @@
 #include "HBSGsep.h"
 
 void fit_gal_template(long ii,long jj,double *gal_lncoeff, \
-					  double *gal_coeffvar,double *gal_chi2) {
+                      double *gal_coeffvar,double *gal_chi2) {
 	
 	
     //External variables
@@ -34,48 +34,48 @@ void fit_gal_template(long ii,long jj,double *gal_lncoeff, \
         // Calculate best fit
         for (kk=0; kk<Nfilter; kk++) {
 			
-	    mflux[kk]    = modelflux_gals[kk][jj+ii*Nz];
-	    dflux[kk]    = dataflux[kk][ll];
-	    dfluxerr[kk] = datafluxerr[kk][ll];
+            mflux[kk]    = modelflux_gals[kk][jj+ii*Nz];
+            dflux[kk]    = dataflux[kk][ll];
+            dfluxerr[kk] = datafluxerr[kk][ll];
 						
-	    dflux[kk]    = dflux[kk]*fluxunitfactor;
-	    dfluxerr[kk] = dfluxerr[kk]*fluxunitfactor;
+            dflux[kk]    = dflux[kk]*fluxunitfactor;
+            dfluxerr[kk] = dfluxerr[kk]*fluxunitfactor;
 			
-	    if (kk == 0) {
-	        lh=0.0;
-		rh=0.0;
-		detdfluxerr = dfluxerr[kk];
-	    } else {
-	        detdfluxerr *= dfluxerr[kk];
-	    }
+            if (kk == 0) {
+                lh=0.0;
+                rh=0.0;
+                detdfluxerr = dfluxerr[kk];
+            } else {
+                detdfluxerr *= dfluxerr[kk];
+            }
 			
-	    lh +=  mflux[kk] * mflux[kk] / dfluxerr[kk] / dfluxerr[kk];
-	    rh +=  dflux[kk] * mflux[kk] / dfluxerr[kk] / dfluxerr[kk];
+            lh +=  mflux[kk] * mflux[kk] / dfluxerr[kk] / dfluxerr[kk];
+            rh +=  dflux[kk] * mflux[kk] / dfluxerr[kk] / dfluxerr[kk];
 			
-	    if (kk == Nfilter-1) {
-	        coeff = rh/lh;
-		coefferr = sqrt(1.0/lh);
-	    }
-	}
+            if (kk == Nfilter-1) {
+                coeff = rh/lh;
+                coefferr = sqrt(1.0/lh);
+            }
+        }
 
-	if (coeff<=0)
-	    coeff = 1.0;
+        if (coeff<=0)
+            coeff = 1.0;
 		
-	// Calculate chi2 for above fit
-	for (kk=0; kk<Nfilter; kk++) {
+        // Calculate chi2 for above fit
+        for (kk=0; kk<Nfilter; kk++) {
 			
-	    if (kk==0) 
-	        chi2 = 0.0;
+            if (kk==0) 
+                chi2 = 0.0;
 		
-	    chi2 += (dflux[kk] - coeff * mflux[kk]) * \
-				(dflux[kk] - coeff * mflux[kk]) / \
-				dfluxerr[kk] / dfluxerr[kk];
+            chi2 += (dflux[kk] - coeff * mflux[kk]) * \
+                    (dflux[kk] - coeff * mflux[kk]) / \
+                    dfluxerr[kk] / dfluxerr[kk];
 			
-	}
+        }
 		
-	gal_lncoeff[ll]  = log(coeff);
-	gal_coeffvar[ll] = coefferr * coefferr;
-	gal_chi2[ll]     = chi2;
+    gal_lncoeff[ll]  = log(coeff);
+    gal_coeffvar[ll] = coefferr * coefferr;
+    gal_chi2[ll]     = chi2;
 				
     }
 }

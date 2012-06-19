@@ -17,29 +17,29 @@
 #include "HBSGsep.h"
 
 void calc_normalization(double *plam,double *pval,double length, \
-						double *normval) {
+                        double *normval) {
 
-	double abfnu = 3.631e-20, cinang = 3.0e18;
-	double tmpint, h, w;
-	long ii;
+    double abfnu = 3.631e-20, cinang = 3.0e18;
+    double tmpint, h, w;
+    long ii;
 
 	
-	tmpint=0;
-	h = *(plam+1) - *(plam +0);
+    tmpint=0;
+    h = *(plam+1) - *(plam +0);
 	
-	for (ii=0;ii < length-1;ii++) {
-		if (ii == 0 || ii == length-2)
-			w=3.0/8.0;
-		else if (ii == 1 || ii == length-3)
-			w=7.0/6.0;
-		else if (ii == 2 || ii == length-4)
-			w=23.0/24.0;
-		else w=1.0;
+    for (ii=0;ii < length-1;ii++) {
+        if (ii == 0 || ii == length-2)
+            w=3.0/8.0;
+        else if (ii == 1 || ii == length-3)
+            w=7.0/6.0;
+        else if (ii == 2 || ii == length-4)
+            w=23.0/24.0;
+        else w=1.0;
 		
-		tmpint += w * h / *(plam + ii) * *(pval + ii) * abfnu * cinang;
+        tmpint += w * h / *(plam + ii) * *(pval + ii) * abfnu * cinang;
 		
-	}
-	*normval = tmpint;
+    }
+    *normval = tmpint;
 }
 
 

@@ -28,16 +28,16 @@ void star_model_mags(void) {
 	
     for (kk=0;kk<Nfilter;kk++) {
         modmags[kk] = (double *)malloc(Nstartemplate * sizeof(double));
-		for (jj=0; jj<Nstartemplate; jj++) {
-			modmags[kk][jj] = (-2.5) * log10(modelflux_stars[kk][jj] / \
-											 norm[kk]);
-		}
+        for (jj=0; jj<Nstartemplate; jj++) {
+            modmags[kk][jj] = (-2.5) * log10(modelflux_stars[kk][jj] / \
+                                             norm[kk]);         
+        }       
     }
 	
     write_modelmags(starmodmagsfile,Nstartemplate,modmags);
 		
     for (kk=0;kk<Nfilter;kk++) {
-        free(modmags[kk]);
+        free(modmags[kk]);      
     }
     free(modmags);
 }

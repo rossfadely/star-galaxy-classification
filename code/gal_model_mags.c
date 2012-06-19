@@ -29,19 +29,19 @@ void gal_model_mags(void) {
 	
     for (kk=0;kk<Nfilter;kk++) {
         modmags[kk]=(double *)malloc(Ngaltemplate * Nz * sizeof(double));
-		for (jj=0; jj<Ngaltemplate; jj++) {
-			for (ll=0; ll<Nz; ll++) {
-				modmags[kk][ll+jj*Nz] = (-2.5) * \
-										log10(modelflux_gals[kk][ll+jj*Nz] / \
-											  norm[kk]);
-			}
-		}
+        for (jj=0; jj<Ngaltemplate; jj++) {
+            for (ll=0; ll<Nz; ll++) {
+                modmags[kk][ll+jj*Nz] = (-2.5) * \
+                                        log10(modelflux_gals[kk][ll+jj*Nz] / \
+                                              norm[kk]);
+            }
+        }
     }
 	
     write_modelmags(galmodmagsfile,Ngaltemplate * Nz,modmags);
 		
     for (kk=0;kk<Nfilter;kk++) {
-      free(modmags[kk]);
+        free(modmags[kk]);
     }
     free(modmags);
 }

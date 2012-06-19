@@ -39,33 +39,33 @@ void star_model_calcs(void) {
     for (ii=0;ii<Nstartemplate;ii++) {	
 
         get_filelength(ii,starssedinput,N);
-		sedlength = *N;
+        sedlength = *N;
 
-		plam = (double *)malloc(sedlength * sizeof(double));
-		pval = (double *)malloc(sedlength * sizeof(double));
+        plam = (double *)malloc(sedlength * sizeof(double));
+        pval = (double *)malloc(sedlength * sizeof(double));
 
-		read_file(ii,starssedinput,plam,pval);
+        read_file(ii,starssedinput,plam,pval);
 
-		for (kk=0; kk<Nfilter; kk++) {
-			if (ii==0) {
-				modelflux_stars[kk] = (double *)malloc(Nstartemplate * \
-													   sizeof(double));
-			}
-			pvalfine = (double *)malloc(filter_lgth_fine[kk] * sizeof(double));
+        for (kk=0; kk<Nfilter; kk++) {
+            if (ii==0) {
+                modelflux_stars[kk] = (double *)malloc(Nstartemplate * \
+                                                       sizeof(double));
+            }
+            pvalfine = (double *)malloc(filter_lgth_fine[kk] * sizeof(double));
 			
-			regrid_sed(0.0,plam,pval,filter_lgth_fine[kk],sedlength, \
-					   filter_lamb_fine[kk],pvalfine);
+            regrid_sed(0.0,plam,pval,filter_lgth_fine[kk],sedlength, \
+                       filter_lamb_fine[kk],pvalfine);
 			
-			integrate_sed(filter_lgth_fine[kk],pvalfine,filter_lamb_fine[kk], \
-						  filter_thru_fine[kk],modval);
+            integrate_sed(filter_lgth_fine[kk],pvalfine,filter_lamb_fine[kk], \
+                          filter_thru_fine[kk],modval);
 			
-			modelflux_stars[kk][ii] = *modval;
+            modelflux_stars[kk][ii] = *modval;
 			
-			free(pvalfine);
-		}
-		free(plam);
-		free(pval);
-	}
+            free(pvalfine);
+        }
+        free(plam);
+        free(pval);
+    }
     free(modval);
 	
 }
