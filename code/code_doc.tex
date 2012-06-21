@@ -9,7 +9,7 @@
 \begin{document}
 
 
-\title{\tt HBSGSep} 
+\title{\tt HBSGsep} 
 
 \author{Ross~Fadely, rfadely@haverford.edu}
 
@@ -17,7 +17,7 @@
 
 Found at \href{http://github.com/rossfadely/star-galaxy-classification}
 {http://github.com/rossfadely/star-galaxy-classification} are {\tt C} routines 
-which may be used to compile the code {\tt HBSGSep}.  Details about the purpose 
+which may be used to compile the code {\tt HBSGsep}.  Details about the purpose 
 of the code, as well as the algorithm's concept and formalism can be found in 
 the documents portion of the above URL.  It is recommended the user reads 
 this document (Fadely, Hogg, and Willman (2012)) before proceeding.
@@ -34,7 +34,7 @@ Please do fork this code if you would like to make improvements.
 
 \section{Compiling and Dependencies}
 
-{\tt HBSGSep} makes use of two external packages - 
+{\tt HBSGsep} makes use of two external packages - 
 
 \tab\href{http://www.gnu.org/software/gsl/}{GNU Scientific Library} \\
 \tab\href{http://heasarc.gsfc.nasa.gov/fitsio/}{CFITSIO}.
@@ -48,10 +48,10 @@ a few variables to get started (Section \ref{sec:start}).
 \section{Getting Started} 
 \label{sec:start}
 
-During runtime, {\tt HBSGSep} accepts and returns a number of FITS and ascii files.  
+During runtime, {\tt HBSGsep} accepts and returns a number of FITS and ascii files.  
 Before compiling, one must specify the path and names of these files as well as 
 changing a few parameters.  These variables can be found at the beginning of 
-{\tt HBSGSep.c}.  In this section we describe the variables which are \emph{required} 
+{\tt HBSGsep.c}.  In this section we describe the variables which are \emph{required} 
 to be modified.  Optional modifications are described in Section \ref{sec:optional}.
 
 \subsection{Input Files}
@@ -148,7 +148,7 @@ one used here.
 
 \subsection{Data}
 
-We have found the results of {\tt HBSGSep} are not overly sensitive to the sample size 
+We have found the results of {\tt HBSGsep} are not overly sensitive to the sample size 
 of the data, except in extreme cases.  For large datasets, the code runs slower and may 
 run into memory allocation issues depending on the user's machine.  For very small 
 datasets, one runs the risk of not having data which spans the range of demographics 

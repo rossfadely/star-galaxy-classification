@@ -1,4 +1,4 @@
-Hierarchical Bayesian Star-Galaxy Separations (HBSGSep) 
+Hierarchical Bayesian Star-Galaxy Separations (HBSGsep) 
 =====
 
 Code to classify stars and galaxies photometrically by fitting 
