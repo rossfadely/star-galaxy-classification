@@ -68,37 +68,31 @@
 \begin{abstract}
   Ground-based optical surveys such as PanSTARRS, DES, and LSST, will
   produce large catalogs to limiting magnitudes of $r \gtrsim 24$.
-  Star--galaxy separation will pose a major challenge to such surveys
+  Star--galaxy separation poses a major challenge to such surveys
   because galaxies---even very compact galaxies---outnumber halo stars
-  at these depths.  Here we investigate photometric classification
+  at these depths.  We investigate photometric classification
   techniques on stars and galaxies with intrinsic FWHM $<0.2$~arcsec.
   We consider unsupervised spectral energy distribution template
   fitting and supervised, data-driven Support Vector Machines (SVM).
   For template fitting, we use a Maximum Likelihood (ML) method and a
-  new Hierarchical Bayesian (HB) method, in which we learn the prior
-  distribution of template probabilities by optimizing the likelihood
-  for the entire dataset.  SVM requires training data to classify
-  unknown sources; ML and HB don't.  We consider both i.) a
-  best-case scenario (SVM$_{best}$) in which the training data is
+  new Hierarchical Bayesian (HB) method, which learns the prior
+  distribution of template probabilities from the data.  SVM requires training 
+  data to classify unknown sources; ML and HB don't.  We consider i.) a
+  best-case scenario (SVM$_{best}$) where the training data is
   (unrealistically) a random sampling of the data in both
   signal-to-noise and demographics, and ii.) a more realistic scenario
-  in which the SVM is trained on higher signal-to-noise data
+  where training is done on higher signal-to-noise data
   (SVM$_{real}$) at brighter apparent magnitudes.  Testing with COSMOS
   $ugriz$ data we find that HB outperforms ML, delivering $\sim80\%$
-  completeness in both star and galaxy samples, with purity of
-  $\sim40-90\%$ and $\sim70-90\%$ for stars and galaxies,
+  completeness, with purity of $\sim40-90\%$ and $\sim70-90\%$ for stars and galaxies,
   respectively.  We find no algorithm delivers perfect performance, and 
-  that studies of M-giant and metal-poor main-sequence turnoff stars
-  may be 
-  most affected by poor star-galaxy separation.  We measure the area 
-  under the Receiver Operating Characteristic curve to assess the 
-  relative performance of the approaches and find a best-to-worst 
-  ranking of SVM$_{best}$, HB, ML, and SVM$_{real}$.  We conclude, therefore, that a well
-  trained SVM will outperform template-fitting methods.  However, a
-  normally trained SVM performs worse.  Thus, Hierarchical Bayesian
-  template fitting may prove to be the optimal method for source
-  classification in future surveys.  Code for the basic HB algorithm presented 
-  here is made publicly available.
+  that studies of metal-poor main-sequence turnoff stars
+  may be challenged by poor star-galaxy separation.  Using the Receiver Operating 
+  Characteristic curve, we find a best-to-worst ranking of SVM$_{best}$, HB, ML, and 
+  SVM$_{real}$.  We conclude, therefore, that a well trained SVM will outperform 
+  template-fitting methods.  However, a normally trained SVM performs worse.  Thus, 
+  Hierarchical Bayesian template fitting may prove to be the optimal classification method 
+  in future surveys.  
 \end{abstract}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -744,13 +738,15 @@ weaknesses in classification algorithms, but can be used to identify
 the specific science cases which will be most highly impacted.  To
 illustrate, we examine places where both SVM$_{best}$ and HB
 underperform and compare these regions to the object types in our
-templates.  First, for stars, we identify two such regions within
-$0.0\lesssim u-g \lesssim 1.0$, one with $0.7\lesssim g-r \lesssim
-1.5$ and another with $0.0\lesssim g-r \lesssim 0.5$.  These are
-consistent with late-type M-giant and metal-poor main-sequence turnoff
-stars, respectively.  The relatively poorer performance in these
-regions is troubling, since these populations are some of the main
-tracers for low-surface brightness Galactic halo structure.  
+templates.  For stars we identify two such regions.  The first lies 
+ within $0.0\lesssim u-g \lesssim 1.0$ and $0.7\lesssim g-r \lesssim
+1.5$, which has been suggested to be comprised of white dwarf, M dwarf 
+binaries \citep{silvestri06, covey07}.  The second region, with 
+$0.0\lesssim u-g \lesssim 1.0$ and $0.0\lesssim g-r \lesssim 0.5$, is 
+consistent with metal-poor main-sequence turnoff stars.  The relatively 
+poorer performance in this region is particularly troubling, since these 
+populations are some of the main tracers for low-surface brightness 
+Galactic halo structure.  
 
 For galaxies, association of underperforming regions to specific
 populations is less clear-cut.  For instance, we find the poor
@@ -1070,6 +1066,12 @@ Chang, C.-C., \& Lin, C.-J. 2011, ACM Transactions on Intelligent Systems and
 {Coil}, A.~L., {Newman}, J.~A., {Kaiser}, N., {Davis}, M., {Ma}, C.-P.,
   {Kocevski}, D.~D., \& {Koo}, D.~C. 2004, \apj, 617, 765
 
+\bibitem[{{Covey} {et~al.}(2007){Covey}, {Ivezi\'c}, {Schlegel}, {Finkbeiner}, 
+{Padmanabhan},  {Lupton}, {Ag\"ueros},{Bochanski},{Hawley},{West},{Seth},
+{Kimball},{Gogarten},{Claire},{Haggard},{Kaib},{Schneider}, \& {Sesar}}]{covey07}
+{Covey}, K. R., {et~al.}  2004, \aj, 134, 2398
+
+
 \bibitem[{{Daddi} {et~al.}(2004){Daddi}, {Cimatti}, {Renzini}, {Fontana},
   {Mignoli}, {Pozzetti}, {Tozzi}, \& {Zamorani}}]{daddi04a}
 {Daddi}, E., {Cimatti}, A., {Renzini}, A., {Fontana}, A., {Mignoli}, M.,
@@ -1224,6 +1226,13 @@ M{\"u}ller, K.-R., Mika, S., R{\"a}tsch, G., Tsuda, K., \& Sch{\"o}lkopf, B.
   {Brownstein}, {Brinkmann}, \& {Weaver}}]{shu12}
 {Shu}, Y., {Bolton}, A.~S., {Schlegel}, D.~J., {Dawson}, K.~S., {Wake}, D.~A.,
   {Brownstein}, J.~R., {Brinkmann}, J., \& {Weaver}, B.~A. 2012, \aj, 143, 90
+
+\bibitem[{{Silvestri} {et~al.}(2006){Silvestri}, {Hawley}, {West}, {Szkody}, 
+{Bochanski}, {Eisenstein}, {McGehee},{Schmidt},{Smith},{Wolfe},{Harris},
+{Kleinman},{Liebert},{Nitta},{Barentine},{Brewington},{Brinkmann},{Harvanek},
+{Krzesi\'nski},{Long},{Neilsen},{Schneider}, \& {Snedden}}]{silvestri06}
+  {Silvestri}, N.~M., {et~al.} 2006, \aj, 131, 1674
+
 
 \bibitem[{{Solarz} {et~al.}(2012){Solarz}, {Pollo}, {Takeuchi}, {Pepiak},
   {Matsuhara}, {Wada}, {Oyabu}, {Takagi}, {Goto}, {Ohyama}, {Pearson},
