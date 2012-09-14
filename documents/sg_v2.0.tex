@@ -578,13 +578,13 @@ Finally, for each template fit we marginalize over the (Gaussian) uncertainty
 in the fit amplitude, for which we must specify a prior distribution 
 (\ref{eqn:fitmarg} and \ref{eqn:fitconstraint} in Appendix).  We adopt a log-normal 
 prior for the fit amplitudes, which we set by taking the mean and variance 
-of the log-amplitudes of all the data for a given template.  This approach makes 
+of the log-amplitudes from fits of all the data for a given template.  This approach makes 
 the priors essentially uninformative, since the variance for all the data is 
 large with respect to the variance for data which is well fit by the template.
 Like redshift priors, these too could be treated as hyperparameters but come 
 at the cost of much slower likelihood computations.  
 
-In summary, we fix redshift and fit amplitude priors and vary the prior weights 
+In summary, we fix redshift and fit-amplitude priors and vary the prior weights 
 of the template and $(S,G)$ probabilities.  Thus, we optimize 283 prior
 (hyper)parameters to values which yield the maximum likelihood of the entire 
 dataset.
