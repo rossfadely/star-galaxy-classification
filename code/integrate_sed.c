@@ -12,6 +12,9 @@
 //
 //  Calculate the model flux for given filter.
 //
+//  BUGS:
+//  - assumes `fillam` wavelength grid is uniform, right? -Hogg
+//
 
 #include "HBSGsep.h"
 
