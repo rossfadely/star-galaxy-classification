@@ -84,8 +84,8 @@
   where training is done on higher signal-to-noise data
   (SVM$_{real}$) at brighter apparent magnitudes.  Testing with COSMOS
   $ugriz$ data we find that HB outperforms ML, delivering $\sim80\%$
-  completeness, with purity of $\sim40-90\%$ and $\sim70-90\%$ for stars and galaxies,
-  respectively.  We find no algorithm delivers perfect performance, and 
+  completeness, with purity of $\sim60-90\%$ for both stars and galaxies.  
+  We find no algorithm delivers perfect performance, and 
   that studies of metal-poor main-sequence turnoff stars
   may be challenged by poor star-galaxy separation.  Using the Receiver Operating 
   Characteristic curve, we find a best-to-worst ranking of SVM$_{best}$, HB, ML, and 
@@ -155,7 +155,7 @@ catalog.  For studies of blue stars, field star counts are dominated
 by unresolved galaxies by $r\sim23.5$ and are devastated by unresolved
 galaxies at fainter magnitudes. The problem is far less severe for
 studies of red stars, which may dominate point source counts for
-$r\lesssim24$. Although morphological identification of galaxies with
+$r\lesssim24.5$. Although morphological identification of galaxies with
 FWHM as small as $0.2$~arcsec is better than possible for the Sloan Digital Sky
 Survey (median seeing $\sim1.3$~arcsec), future surveys with
 higher median image quality (for example, $0.7$~arcsec predicted for LSST) may
@@ -196,7 +196,7 @@ probabilistic classifications.  Generally, these fall into i)
 physically based methods---those which have theoretical or empirical
 models for what type of physical object a source is, or ii) data
 driven methods---those which use real data with known classifications
-to construct a model for new data.  Physically based bayesian and
+to construct a model for new data.  Physically based Bayesian and
 $\chi^2$ template fitting methods have been extensively used to infer
 the properties of galaxies \citep[e.g.,][]{coil04a, ilbert09, xia09,
   walcher11a,hildebrandt10}. However, in those studies relatively
@@ -411,7 +411,14 @@ and a morphological classification using the
 sources as stars if {\tt ACS\_MU\_CLASS} says the source is pointlike, 
 and the `star' $\chi^2$ is lower than that for `AGN/QSO'.  For galaxies, 
 we require the source to have a non-pointlike {\tt ACS\_MU\_CLASS}.  
-AGN/QSOs are discarded from our current analysis.  For the labeling, we 
+This classification assumes that all galaxies in the \textit{HST} images 
+are resolved.  We view this as an excellent approximation of the truth 
+-- COSMOS \textit{ACS} images are very deep ($i\sim28$), and can thus detect 
+the faint extended features of nearly unresolved galaxies.  We have 
+qualitatively confirmed this by examining the distribution of galaxy 
+FWHM, and find the distribution to be smoothly decreasing down to 
+the smallest FWHM in the data.  We estimate the number of galaxies 
+labeled as stars to be below the few-percent level.  For the labeling, we 
 use an updated version of the publicly available photometric catalog, 
 provided by P. Capak (private communication).  While present in the catalog, 
 we do not use any photometric redshift information in determining the 
@@ -427,12 +434,11 @@ $\gtrsim0.7$~arcsec, and so are an appropriate test bed for the type of sources
 which will rely the most on photometric star--galaxy separation.  In
 total, our sample consists of 7139 stars and 9167 galaxies with apparent 
 magnitudes $22.5<r<25$, and is plotted in {\it ugriz} color--color space in
-Figure \ref{fig:color-color-data}.   Over this magnitude range, the median 
+Figure \ref{fig:color-color-data}.  Over this magnitude range, the median 
 signal-to-noise in the $r$ band ranges from $\sim50$ at $r=22.5$ to 
 $\sim15$ at $r=25$, with lower corresponding ranges of 10 to 7 in the $u$.  
 Of all 18606 sources with FWHM$<0.2$~arcsec in the COSMOS catalog, we 
-identified 2300 AGN.  Thus, the contamination from any mis-classified AGN 
-should be below the few-percent level for the sample we use here.
+identified 2300 AGN, which we discard from our current analysis. 
 
 \begin{figure}
 \centering
@@ -532,7 +538,7 @@ inferential procedure in Appendix A.  Open-source \texttt{C} code is
 available at {\footnotesize
   \texttt{\url{http://github.com/rossfadely/star-galaxy-classification}}}.
 In this section, we qualitatively describe features specific to our HB
-algorithm.  We emphasize that hierarchical bayesian algorithms are
+algorithm.  We emphasize that hierarchical Bayesian algorithms are
 unsupervised: we use no training set and do not set priors in advance
 of running the algorithms.  As described in Section \ref{ssec:HBmethod}, 
 the priors for the templates are inferred from the data itself.
@@ -692,9 +698,9 @@ COSMOS sources severely undermines the efficacy of SVM$_{real}$.
 
 
 In terms of purity (Figure \ref{fig:purity}), SVM$_{best}$ outperforms
-all other approaches.  For galaxies, HB yields similar performance to
+all other approaches.  For stars, HB yields similar performance to
 SVM$_{best}$, but all approaches underperform SVM$_{best}$ in terms of
-stellar purity.  When taken in concert with the results of Figure
+galaxy purity.  When taken in concert with the results of Figure
 \ref{fig:completeness}, we see that HB delivers similar or better
 performance than ML in all cases, even with the relatively simple HB
 approach presented here.  For stars, ML and HB yield similar sample
@@ -710,10 +716,10 @@ completeness by $\sim10\%$.
 \caption{Similar to Figure \ref{fig:completeness} but showing purity
   of classified samples, instead of completeness. Results for stars
   are on the left in green, while those for galaxies are shown on the
-  right in blue.  Here, SVM algorithms clearly outperform all others,
+  right in blue.  Here, SVM algorithms generally outperform all others,
   if given a very good set of training data (${\rm SVM}_{best}$).  For
-  galaxies, our HB algorithm delivers similar purity to the ${\rm
-    SVM}_{best}$ scenario.  For stars, however, HB underperforms ${\rm
+  stars, our HB algorithm delivers somewhat similar purity to the ${\rm
+    SVM}_{best}$ scenario.  For galaxies, however, HB underperforms ${\rm
     SVM}_{best}$ as the stellar fraction of the sample decreases.}
 \label{fig:purity}
 \end{figure}
@@ -955,9 +961,9 @@ Our conclusions are as follows:
 
 \item Maximum Likelihood (ML) template fitting methods are simple, and
   return informative classifications.  At $\ln(\Omega)=0$, ML methods
-  deliver high galaxy completeness ($\sim90\%$) but low stellar
+  deliver high galaxy completeness ($\gtrsim90\%$) but low stellar
   completeness ($\sim50\%$).  The purity of these samples range from
-  $\sim50-90\%$, and are a strong function of the relative sample
+  $\sim50-95\%$, and are a strong function of the relative sample
   fraction.
 
 \item We present a new, basic Hierarchical Bayesian (HB) approach to template
