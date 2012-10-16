@@ -1,7 +1,123 @@
 \documentclass[12pt]{article}
 
-\begin{document}
+\newcommand{\project}[1]{\textsl{#1}}
+\newcommand{\foreign}[1]{\textsl{#1}}
+\newcommand{\etal}{\foreign{et~al.}}
 
-hello world
+\newcommand{\given}{\,|\,}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\setofall}[1]{\left\{{#1}\right\}}
+\renewcommand{\star}{\mathrm{star}}
+\newcommand{\galaxy}{\mathrm{gal}}
+\newcommand{\quasar}{\mathrm{qso}}
+\newcommand{\mml}{\mathrm{MML}}
+
+\title{Hierarchical probabilistic point-source classification for SDSS Stripe 82}
+\author{some mix of Bochanski, Fadely, Hogg, Preston, Willman, and others}
+\date{DRAFT VERSION 2012-10}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Ground-based optical studies of the Milky Way face the challenge that
+at faint magnitudes, galaxies are not cleanly distinguishable from
+stars on morphological grounds alone.  This problem is especially
+severe at magnitudes at which galaxies enormously outnumber stars.
+Fortunately, these surveys tend to be multi-band and the photometry
+usually comes with reasonable uncertainty estimates.  Here we use an
+unsupervised, template-based hierarchical Bayesian model to capitalize
+on multi-band photometry to classify angularly compact sources into
+star, galaxy, and quasar classes.  We apply the method to the
+\project{Sloan Digital Sky Survey Stripe 82} imaging data set.  We
+find XXX and YYY.  All our code and all of its output on the
+\project{Stripe 82} data are available at ZZZ.
+\end{abstract}
+
+\section{Introduction}
+
+Start with the ratios of stars, galaxies and quasars as a function of
+apparent magnitude, color, and angular size cut.  This could be a
+paper on its own!
+
+Hogg to Beth: One way to think about this problem is as a data
+imputation problem: Can we accurately predict the high-resolution
+(say, \project{HST}-resolution) size measurement using the multi-band
+low-resolution (ground-based) photometric measurements, in which the
+source is unresolved?
+
+Most approaches to this problem are supervised approaches.  These are
+bad because test data (the new data of interest) are never
+statistically like training data (previous-generation data no longer
+of interest).
+
+In previous work (Fadely \etal\ 2012) we have shown that an
+unsupervised hierarchical Bayesian methodology outperforms the best
+supervised classification methods in the realistic situations in which
+we find ourselves: We have a good noise model for our data, but we
+don't have training data at the same depth or signal-to-noise as the
+test data (data of interest).
+
+\section{Method}
+
+\begin{eqnarray}
+p(d_i\given j,C_{ij},I) &=& A_i\,\exp(-\frac{1}{2}\,\chi^2_{ij})
+\\
+p(d_i\given j,I) &=& \int p(d_i\given j,C_{ij},I)\,p(C_{ij}\given I)\,\dd C_{ij}
+\\
+p(d_i\given \star,I) &=& \sum_j p(d_i\given j,I)\,P(j\given I)
+\\
+p(d_i\given I) &=& \sum_{q\in\setofall{\star,\galaxy,\quasar}} p(d_i\given q,I)\,P(q\given I)
+\\
+p(\setofall{d_i}_i\given I) &=& \prod_i p(d_i\given I)
+\\
+I_{\mml} &\leftarrow& \arg\max_I p(d_i\given I)
+\\
+p(\star\given d_i,I_{\mml}) &=& \frac{1}{Z_i}\,p(d_i\given \star,I_{\mml})\,P(\star\given I_{\mml})
+\\
+Z_i &\equiv& p(d_i\given I_{\mml})
+\quad ,
+\end{eqnarray}
+where $I$ represents all the assumptions and hyper-parameters and
+$I_{\mml}$ is the maximum-marginalized likelihood values for all those
+assumptions and hyperparameters (that we permitted to vary).  This
+method is called ``empirical Bayes'', apparently.
+
+Beth question: Are the posterior probabilities true probabilities?
+Hogg answer: Yes, but conditional on some hella unrealistic
+assumptions.
+
+\section{Data}
+
+Summary of \project{SDSS Stripe 82} data and how we got it.  Don't
+forget the errors.
+
+Discussion of \project{SDSS} star--galaxy separators in common use.
+
+\section{Results}
+
+How are we going to test the results?  One option is to go to sources
+covered by \project{HST} pointings and plot the \project{HST}-measured
+size against each of several star--galaxy separation variables,
+including likelihood ratios, posterior probabilities, SVM boundary
+distances, psf-minus-model magnitudes, and the like.
+
+Another more speculative is to see if we can see significance of some
+\project{Stripe 82} stellar structure rise as we apply our method.
+
+Another is to see if we predict photometric bands or colors \emph{not}
+used in the HB inference.  That would be a ``posterior predictive
+check'' which is not \emph{directly} relevant, but should correlate
+with performance.
+
+\section{Discussion}
+
+What worked, what didn't?
+
+What approximations did we make and how are they likely to be hurting
+us?
+
+What advice do we have for just-starting projects like \project{Dark
+  Energy Survey}?  And of course \project{LSST}.
 
 \end{document}
