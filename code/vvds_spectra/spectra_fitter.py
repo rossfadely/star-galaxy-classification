@@ -41,6 +41,7 @@ class VVDSfitter(object):
         self.input_gals = self.redshift_gals()
 
         # Regrid templates
+        self.stars = self.regrid_templates(self.input_stars,self.Nstar)
 
     def get_2col_ascii_data(self,list,dir):
         """
@@ -75,13 +76,34 @@ class VVDSfitter(object):
         os.chdir(curdir)
         return spectra
 
+    def redshift_gals(self):
+        """
+        Blow up galaxy grids in redshift space
+        """
+        newdict = {}
+        zgrid = np.linspace(0.,self.zmax,self.zmax/self.dz+1)
+        Nz = zgrid.shape[0]
+
+        # again brutal foo
+        for i in range(self.Ngal):
+            for j in range(zgrid.shape[0]):
+                d = self.input_gals[i].copy()
+                d[0,:] *= (1.0 + zgrid[j])
+                newdict[i*Nz+j] = d
+        return newdict
+
+
+
     def regrid_templates(self,template_dict,Ntemplates):
+        """
+        Regrid the templates to be the average in the bin
+        """
 
         # All VVDS spectra are on same grid
         Nwave = self.wavelengths.shape[0]
         hstep = (self.wavelengths[1] - self.wavelengths[0]) / 2.0
-        regrided = np.zeros(Ntemplates,Nwave)
-
+        regrided = np.zeros((Ntemplates,Nwave))
+        # NOT WORKING
         # brutal, this is a bag of butts
         for i in range(Ntemplates):
             w = template_dict[i][0,:]
@@ -94,19 +116,6 @@ class VVDSfitter(object):
 
         return regrided
 
-    def redshift_gals(self):
-
-        newdict = {}
-        zgrid = np.linspace(0.,self.zmax,self.zmax/self.dz+1)
-        Nz = zgrid.shape[0]
-
-        # again brutal foo
-        for i in range(self.Ngal):
-            for j in range(zgrid.shape[0]):
-                d = self.input_gals[i].copy()
-                d[0,:] *= (1.0 + zgrid[j])
-                newdict[i*Nz+j] = d
-        return newdict
 
 
         
