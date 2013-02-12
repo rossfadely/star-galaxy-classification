@@ -149,8 +149,8 @@ int main(int argc, char **argv) {
 	
     //  Write minimum chi2 values, if desired
     if (writeminchi2 == 1) {
+        write_minchi2(galchi2file,"min_gal_chi2",0);
         write_minchi2(starchi2file,"min_star_chi2",1);
-        write_minchi2(galchi2file,"min_gal_chi2",1);
     }	
 	
 	
