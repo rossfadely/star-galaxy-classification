@@ -4,6 +4,8 @@ import ctypes
 import numpy as np
 import pyfits as pf
 
+from ctypes import c_double,c_long,c_int,POINTER
+
 class VVDSfitter(object):
     """
     Determine maximum likelihood classifications of VVDS spectra
@@ -42,7 +44,12 @@ class VVDSfitter(object):
 
         # Regrid templates
         self.stars = self.regrid_templates(self.input_stars,self.Nstar)
+        self.gals = self.regrid_templates(self.input_gals,self.Ngal)
 
+        # fit spectra
+        self.star_scale,self.star_chi2,self.star_idx = self.fit_spectra('stars')
+        self.gal_scale,self.gal_chi2,self.gal_idx = self.fit_spectra('gals')
+        
     def get_2col_ascii_data(self,list,dir):
         """
         Return dictionary of wavelengths, flambdas for the list of star/gal
@@ -84,39 +91,91 @@ class VVDSfitter(object):
         zgrid = np.linspace(0.,self.zmax,self.zmax/self.dz+1)
         Nz = zgrid.shape[0]
 
+
         # again brutal foo
         for i in range(self.Ngal):
             for j in range(zgrid.shape[0]):
                 d = self.input_gals[i].copy()
                 d[0,:] *= (1.0 + zgrid[j])
                 newdict[i*Nz+j] = d
+
+        self.Ngal *= Nz
         return newdict
-
-
 
     def regrid_templates(self,template_dict,Ntemplates):
         """
         Regrid the templates to be the average in the bin
         """
+        wVVDS = self.wavelengths
+
 
         # All VVDS spectra are on same grid
-        Nwave = self.wavelengths.shape[0]
-        hstep = (self.wavelengths[1] - self.wavelengths[0]) / 2.0
+        Nwave = wVVDS.shape[0]
+        hstep = (wVVDS[1] - wVVDS[0]) / 2.0
         regrided = np.zeros((Ntemplates,Nwave))
-        # NOT WORKING
+
+        wavep = wVVDS.ctypes.data_as(POINTER(c_double))
+        mask = np.zeros(Nwave).astype('int32')
+        mask_p = mask.ctypes.data_as(POINTER(c_int))
+
+        interp = self._load_cubic_spline_interp_1d('./_cubic_spline_interp_1d.so',
+                                                   'cubic_spline_interp_1d')
+
         # brutal, this is a bag of butts
         for i in range(Ntemplates):
-            w = template_dict[i][0,:]
-            f = template_dict[i][1,:]
+            fnew = wVVDS * 0.0
+            w = template_dict[i][0,:].astype('float64')
+            f = template_dict[i][1,:].astype('float64')
+            w_p = w.ctypes.data_as(POINTER(c_double))
+            f_p = f.ctypes.data_as(POINTER(c_double))
+            fnew_p = fnew.ctypes.data_as(POINTER(c_double))
+            interp(w.shape[0],wVVDS.shape[0],w_p,f_p,wavep,fnew_p,mask_p)
+            regrided[i,:] = fnew
             for j in range(Nwave):
-                ind = (w>self.wavelengths[j]-hstep) & \
-                    (w<=self.wavelengths[j]-hstep)
+                ind = (w>wVVDS[j]-hstep) & \
+                    (w<=wVVDS[j]+hstep)
                 if np.any(ind):
                     regrided[i,j] = np.sum(f[ind]) / float(f[ind].shape[0])
-
         return regrided
 
 
+    def _load_cubic_spline_interp_1d(self,dll_path,function_name):
+        """
+        This reads in the compiled interpolation library
+        """
+        dll = ctypes.CDLL(dll_path,mode=ctypes.RTLD_GLOBAL)
+        func = dll.cubic_spline_interp_1d
+        func.argtypes = [c_long,c_long,POINTER(c_double),
+                         POINTER(c_double),POINTER(c_double),
+                         POINTER(c_double),POINTER(c_int)]
+        return func
 
-        
-        
+    def fit_spectra(self,type):
+        """
+        Fit template to spectra
+        """
+        if type=='stars':
+            models = self.stars
+        if type=='gals':
+            models = self.gals
+
+        Nspectra = self.spectra.shape[0]
+        minchi2 = np.zeros(Nspectra)
+        scales = np.zeros(Nspectra)
+        template = np.zeros(Nspectra)
+
+        # shoot me again
+        for i in range(Nspectra):
+            s = np.zeros(models.shape[0])
+            c = np.zeros(models.shape[0])
+            iv = 1. / self.uncertainty[i,:]**2.
+            y  = self.spectra[i,:]
+            for j in range(models.shape[0]):
+                s[j] = np.dot(models[j,:],y * iv) / \
+                    np.dot(models[j,:],models[j,:] *iv)
+                c[j] = np.sum((y-s[j]*models[j,:])**2.*iv)
+            ind = np.argsort(c)[0]
+            scales[i] = s[ind]
+            minchi2[i] = c[ind]
+            template[i] = ind
+        return scales, minchi2, template
