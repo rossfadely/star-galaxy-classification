@@ -12,8 +12,9 @@ class VVDSfitter(object):
     given template stars and galaxies
     """
     def __init__(self,wavelengths,spectradir,
-                 uncertaintydir,starsdir,galsdir,dz=0.05,
-                 zmax=4.0):
+                 uncertaintydir,starsdir,galsdir,
+                 outname='VVDStemplatefits.dat',
+                 dz=0.05,zmax=4.0):
         """
         Args are disk locations of directories containing only the
         appropriate VVDS FITS files, or spectral templates...
@@ -49,6 +50,9 @@ class VVDSfitter(object):
         # fit spectra
         self.star_scale,self.star_chi2,self.star_idx = self.fit_spectra('stars')
         self.gal_scale,self.gal_chi2,self.gal_idx = self.fit_spectra('gals')
+
+        # write results
+        self.write(outname)
         
     def get_2col_ascii_data(self,list,dir):
         """
@@ -79,6 +83,7 @@ class VVDSfitter(object):
             if i==0:
                 spectra = np.zeros((len(list),d.shape[1]))
             spectra[i,:] = d[0,:] 
+            if i%1000==0: print 'Read %dth spectrum' % i
 
         os.chdir(curdir)
         return spectra
@@ -136,6 +141,7 @@ class VVDSfitter(object):
                     (w<=wVVDS[j]+hstep)
                 if np.any(ind):
                     regrided[i,j] = np.sum(f[ind]) / float(f[ind].shape[0])
+            if i%100==0: print 'Regrided the %dth template' % i
         return regrided
 
 
@@ -178,4 +184,23 @@ class VVDSfitter(object):
             scales[i] = s[ind]
             minchi2[i] = c[ind]
             template[i] = ind
+            if i%500==0: print 'Done Fitting the %dth spectrum' % i
         return scales, minchi2, template
+
+    def write(self,outname):
+
+        f = open(outname,'w')
+        f.write('# starchi2 starscale starindex galchi2'+
+                ' galscale galindex meanSN median SN\n')
+        for i in range(self.spectra.shape[0]):
+            string = '%e %e %d %e %e %d %e %e\n' % (self.star_chi2[i],
+                                   self.star_scale[i],
+                                   self.star_idx[i],
+                                   self.gal_chi2[i],
+                                   self.gal_scale[i],
+                                   self.gal_idx[i],
+                                   np.mean(self.SNspectra[i,:]),
+                                   np.median(self.SNspectra[i,:]))
+            if i%1000==0: print 'Wrote the %dth spectrum' % i
+            f.write(string)
+        f.close()
