@@ -29,7 +29,7 @@ void filter_calcs(void) {
     long *N,ii;
     long sedlength = 0;
     long regridfactor;
-    long filterlength[Nfilter]; 
+    long filterlength; 
 
     double *pnorm;
     double *filtlamb,*filtthru;
@@ -78,7 +78,7 @@ void filter_calcs(void) {
 		
         //get length
         get_filelength(ii,filtersinput, N);
-        filterlength[ii]     = *N;
+        filterlength     = *N;
         regridfactor = round((float)sedlength / (float)*N);
         filter_lgth_fine[ii] = *N * regridfactor;
 		
@@ -92,7 +92,7 @@ void filter_calcs(void) {
         read_file(ii,filtersinput,filtlamb,filtthru);
         
         //regrid the filter to user spec, using gsl spline interpolation
-        regrid_filter(filtlamb,filtthru,filterlength[ii],filter_lgth_fine[ii], \
+        regrid_filter(filtlamb,filtthru,filterlength,filter_lgth_fine[ii], \
                       filter_lamb_fine[ii],filter_thru_fine[ii]);
                     
         //calculate the flux zeropoint
