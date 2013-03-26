@@ -1,5 +1,6 @@
 import subprocess
 import numpy as np
+import ctypes as ct
 
 class ModelMaker(object):
     """
@@ -7,17 +8,20 @@ class ModelMaker(object):
     list of filters and SEDs.
     """
     def __init__(self,filter_dir=None,sed_dir=None,
-                 dll_dir='./lib/',z_grid=None,
-                 calc_norm=True):
+                 z_grid=None,dll='./lib/_model_maker.so'):
 
-        self.seds = self.get_list_and_read(sed_dir)
-        self.filters = self.get_list_and_read(filter_dir)
+        # get filters/seds
+        self.sed_waves,self.sed_fluxes = self.get_list_and_read(sed_dir)
+        self.filter_waves,self.filter_thrus = self.get_list_and_read(filter_dir)
+
+        # calculate models
+        self.make_models(dll,z_grid)
 
     def get_list_and_read(self,loc):
         """
         Use subprocess to get list of file names, then read
-        the text files.  Return list of 2D numpy arrays for
-        filters/seds.
+        the text files.  Return numpy arrays of wavelength and
+        flux/throughput for seds/filters.
         """
         # optional manual input
         if loc==None:
@@ -35,15 +39,45 @@ class ModelMaker(object):
         files = files.split()
 
         # create list
-        tmp = len(files)*[None]
+        wave = len(files)*[None]
+        vals = len(files)*[None]
         for i in range(len(files)):
-            tmp[i] = np.loadtxt(loc+files[i])
+            tmp = np.loadtxt(loc+files[i])
+            wave[i] = tmp[:,0] 
+            vals[i] = tmp[:,1] 
 
-        return tmp
+        return wave,vals
 
+    def make_models(self,dll,z_grid):
+        """
+        Produce model fluxes/mags
+        """
+        # initialize 
+        self.Nseds = len(self.sed_waves)
+        self.Nfilters = len(self.filter_waves)
+        self.model_fluxes = np.zeros((Nseds,Nfilters)) 
+        if z_grid==None:
+            z_grid = np.zeros(1)
 
+        # Ctypes foo
+        maker = ct.CDLL(dll)
+        sed_waves_pt = make_pointer_array(self.sed_waves)
+        sed_fluxes_pt = make_pointer_array(self.sed_fluxes)
+        filter_waves_pt = make_pointer_array(self.filter_waves)
+        filter_thrus_pt = make_pointer_array(self.filter_thrus)
+        model_fluxes_pt = make_pointer_array(self.model_fluxes)
 
+    def make_pointer(self,arr):
 
+    def make_pointer_array(self,arr):
+        """
+        Prep arrays for ctypes
+        """
+        ctarr = len(arr)*[None]
+        for i in range(len(arr)):
+            ctarr[i] = np.ctypeslib.as_ctypes(arr[i])
+
+        return (ct.POINTER(ct.c_double)*len(arr))(*ctarr)
 
 
 if __name__=='__main__':
