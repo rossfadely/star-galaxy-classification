@@ -17,6 +17,7 @@
 
 #include <stdio.h>
 #include <gsl/gsl_spline.h>
+#include <gsl/gsl_interp.h>
 
 void regrid(long, long, double, double*, double*, double*, double*);
 
