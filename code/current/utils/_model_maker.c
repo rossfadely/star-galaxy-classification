@@ -1,6 +1,6 @@
 //
-// This is part of HBSGsep, a hierarchical routine to classify stars and 
-// galaxies using photometric data.
+// This is part of HBSGsep, a hierarchical routine to classify astronomical 
+// sources using photometric data.
 //
 // Please consult http://github.com/rossfadely/star-galaxy-classifiction
 // for associated documentation.
@@ -82,11 +82,11 @@ void model_maker(char *filterlist,char *sedlist,long Nz,double zmax,
     filt_length = (long *)malloc(Nfilter*sizeof(long));
     filt_min_step = (double *)malloc(Nfilter*sizeof(double));    
     
-    //Read in the number of SEDs
+    // Read in the number of SEDs
     get_num_files(sedlist, N);
     Nsed = *N;
         
-    //Read in filters, record smallest wavelength step, calc filter norm
+    // Read in filters, record smallest wavelength step, calc filter norm
     for (ii=0; ii<Nfilter; ii++) {
         get_filelength(ii,filterlist, N);
         filt_length[ii] = *N;
@@ -103,9 +103,9 @@ void model_maker(char *filterlist,char *sedlist,long Nz,double zmax,
         }
     }
 
-    //Read in SEDs, regrid, calculate fluxes
+    // Read in SEDs, regrid, calculate fluxes
     for (ii=0; ii<Nsed; ii++) {
-        //Read SEDs
+        // Read SEDs
         get_filelength(ii,sedlist, N);
         sed_wave = (double *)malloc(*N * sizeof(double));
         sed_flux = (double *)malloc(*N * sizeof(double));
@@ -115,9 +115,9 @@ void model_maker(char *filterlist,char *sedlist,long Nz,double zmax,
             if ((sed_wave[jj+1]-sed_wave[jj])<sed_min_step) 
                 sed_min_step = sed_wave[jj+1]-sed_wave[jj];
         }
-        //Loop over redshift
+        // Loop over redshift
         for (jj=0; jj<Nz; jj++) {
-            //Loop over filter
+            // Loop over filter
             for (kk=0; kk<Nfilter; kk++) {
                 wave_max = filt_lamb[kk][filt_length[kk]-1];
                 wave_min = filt_lamb[kk][0];
