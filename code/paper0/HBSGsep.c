@@ -29,7 +29,7 @@
 
 
 // Input Files
-char filtersinput[]  = "YOUR_PATH";
+char filtersinput[]  = "/Users/rossfadely/Dropbox/SG/input/cosmos_ugriz.in";
 char galssedinput[]  = "YOUR_PATH";
 char starssedinput[] = "YOUR_PATH";
  
@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
     long ii,jj;
 	
     // Setup timing
-    time_t  t0; 
+    time_t t0; 
     t0 = time(NULL);
 	
     // Do Filter Calcs	
