@@ -15,12 +15,12 @@
 //
 
 int fit_one(long Nfilter,double *modelflux,double *dataflux,
-             double *datafluxerr,double *coeff,double *coefferr,
-             double *chi2) {
+            double *datafluxerr,double *coeff,double *coefferr,
+            double *chi2) {
 	
     int flag=0;
     long ii;
-    double lh=0,rh=0;
+    double lh=0.0,rh=0.0;
     
     *chi2 = 0.0;
 		
