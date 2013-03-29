@@ -15,19 +15,21 @@
 
 #include <math.h>
 
-double coeff_marginalization(long Nstep,double Nsigma,
-                             double coeff,double coefferr,
-                             double prior_mean,double prior_var,
-                             double detdfluxerr,double chi2){
+void coeff_marginalization(long Nstep,double Nsigma,
+                           double coeff,double coefferr,
+                           double prior_mean,double prior_var,
+                           double detdfluxerr,double chi2,
+                           double *marg_like){
     
     long ii;
     double h,w;
-    double cval,lncval;
+    double cval,cval0,lncval;
     double dNstep,A,B;
-    double marg_like=0.0,max_like=0.0,like=0.0;
+    double max_like=0.0,like=0.0;
     double prior=0.0,log_norm_coeff=0.0;
     
     dNstep = (double)Nstep;
+    *marg_like = 0.0;
 	
     A = 1.0 / sqrt(2.0 * 3.14159265);
     B = A / sqrt(prior_var);
@@ -53,10 +55,8 @@ double coeff_marginalization(long Nstep,double Nsigma,
         log_norm_coeff = B * exp(-0.5*(lncval - prior_mean) * \
                          (lncval - prior_mean) / prior_var);
         prior = log_norm_coeff / cval;
-        marg_like += h * w * like * prior;
+        *marg_like += h * w * like * prior;
     
     }
-
-    return marg_like;
     
 }
