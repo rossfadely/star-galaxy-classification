@@ -1,3 +1,5 @@
+# Author - Ross Fadely
+#
 import numpy as np
 np.seterr(divide='ignore')
 import ctypes as ct
@@ -9,7 +11,8 @@ from utils import *
 
 class HBsep(object):
     """
-    Gonna build comments....
+    Hierarchical Bayesian classification of astronomical 
+    objects, using photometry.
     """
     def __init__(self, class_labels, Nzs, z_maxs=None, z_min=0.):
 
@@ -481,7 +484,10 @@ class HBsep(object):
         return relative_likelihoods
 
     def write_fits_table(self, filename, data, labels):
-
+        """
+        Write a FITS data table to given `filename` usings `labels` for 
+        column names.
+        """
         cols = pf.ColDefs([pf.Column(name=labels[i], format='E',
                            array=data[:, i]) for i in range(len(labels))])
 
@@ -492,7 +498,9 @@ class HBsep(object):
         tblist.writeto(filename, clobber=True)
 
     def write_relative_likelihoods(self, filename):
-
+        """
+        Write relative marg. likelihoods to FITS file.
+        """
         likes = self.get_relative_likelihoods()
         flags = np.ones(likes.shape[0])
 
@@ -507,11 +515,15 @@ class HBsep(object):
         self.write_fits_table(filename, out, labels)
 
     def write_array(self, filename, array, label):
-
+        """
+        Write a 1D array to FITS table.
+        """
         self.write_fits_table(filename, np.atleast_2d(array), label)
 
     def write_minchi2(self, filename):
-
+        """
+        Write the min. chi^2 for each class to FITS table.
+        """
         labels = []
         minchi2s = np.zeros((self.Ndata, self.Nclasses))
         for i in range(self.Nclasses):
