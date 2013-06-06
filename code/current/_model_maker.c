@@ -65,7 +65,7 @@ void model_maker(char *filterlist,char *sedlist,long filter_only,long Nz,
     } else {
         zgrid[0] = zmin;
     }
-    
+
     // How many filters?
     get_num_files(filterlist, N);
     Nfilter = *N;

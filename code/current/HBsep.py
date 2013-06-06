@@ -1,17 +1,31 @@
-
 import numpy as np
 np.seterr(divide='ignore')
 import ctypes as ct
 import pyfits as pf
-import matplotlib.pyplot as pl
 
 from scipy.optimize import fmin_l_bfgs_b
 from utils import *
 
 class HBsep(object):
     """
-    
+    Gonna build comments....
     """
+    def __init__(self,class_labels,Nzs,z_maxs=None,z_min=0.):
+
+        self.Nzs = Nzs
+        self.z_min = z_min
+        if z_maxs==None:
+            self.z_maxs = np.zeros(len(Nzs))
+        else:
+            self.z_maxs = z_maxs
+        self.class_labels = class_labels
+        
+        # Number of filters and classes
+        self.Nclasses = len(class_labels)
+
+        self.model_mags = {}
+        self.model_fluxes = {}
+
     def get_filter_norm(self,filter_list_path):
         """
         Return the normalizing flux in AB for given
@@ -20,9 +34,8 @@ class HBsep(object):
         f = open(filter_list_path)
         self.Nfilter = len(f.readlines())
         f.close
-
         self._make_models(None,filter_list_path,1,
-                         0.,0.,np.zeros((2,2)),True)
+                         0.,0.,np.zeros((2,2)).astype(np.float64),True)
 
     def _make_models(self,sed_list_path,filter_list_path,
                      Nz,zmin,zmax,models,filter_only=False):
@@ -41,39 +54,33 @@ class HBsep(object):
 
         # ctypes foo
         Nz = ct.c_long(np.int64(Nz))
-        zmin = ct.c_double(zmin)
-        zmax = ct.c_double(zmax)
+        zmin = ct.c_double(np.float64(zmin))
+        zmax = ct.c_double(np.float64(zmax))
         models_p = ctype_2D_double_pointer(models)
 
         # filters only, or models too?
         if filter_only:
             sed_list_p = filt_list_p
-            filter_only = ct.c_long(1)
+            filter_only = ct.c_long(np.int64(1))
         else:
             sed_list_p = ct.c_char_p(sed_list_path)
-            filter_only = ct.c_long(0)
+            filter_only = ct.c_long(np.int64(0))
 
         model_maker.model_maker(filt_list_p,sed_list_p,
                                 filter_only,Nz,zmin,zmax,
                                 filt_norm_p,models_p)
         
     def create_models(self,filter_list_path,list_of_sed_list_paths,
-                      class_labels,Nzs,z_maxs,z_min=0.,normalize_models=True):
+                      normalize_models=True):
         """
         For each class, produce models over redshifts
         """
-        self.Nzs = Nzs
-        self.z_maxs = z_maxs
-        self.class_labels = class_labels
-        
-        # Number of filters and classes
-        self.Nclasses = len(list_of_sed_list_paths)
+
+        # specify Nfilter
         f = open(filter_list_path)
         self.Nfilter = len(f.readlines())
         f.close
 
-        self.model_mags = {}
-        self.model_fluxes = {}
         for i in range(self.Nclasses):
             key = self.class_labels[i]
             sed_list_path = list_of_sed_list_paths[i]
@@ -85,11 +92,11 @@ class HBsep(object):
 
             # init
             self.model_fluxes[key] = \
-                np.zeros((Nzs[i] * Nseds,self.Nfilter)).astype(np.float64) 
+                np.zeros((self.Nzs[i] * Nseds,self.Nfilter)).astype(np.float64) 
 
             # make the models
             self._make_models(sed_list_path,filter_list_path,
-                              Nzs[i],z_min,z_maxs[i],self.model_fluxes[key])
+                              self.Nzs[i],self.z_min,self.z_maxs[i],self.model_fluxes[key])
 
             # normalize models
             if normalize_models:
@@ -242,6 +249,7 @@ class HBsep(object):
         marg = ct.CDLL('./_coeff_marginalization.so')
         self.calc_coeff_priors()
 
+        self.ignored = np.zeros(self.Ndata)
         self.bad_fit_flags = {}
         self.coeff_marg_like = {}
         for i in range(self.Nclasses):
@@ -266,10 +274,17 @@ class HBsep(object):
                                        prior_meansp,prior_varsp,
                                        det_flux_errorsp,chi2sp,marglikep)
 
-            # Flag bad fits, apply a floor
-            self.bad_fit_flags[key] = 0
-            ind = np.where(self.coeff_marg_like[key]<floor)
-            self.coeff_marg_like[key][ind] = floor
+            # Flag bad fits
+            self.bad_fit_flags[key] = np.zeros(self.Ndata)
+            ind = np.where(self.coeff_marg_like[key].sum(axis=1)<floor)[0]
+            self.bad_fit_flags[key][ind] = 1
+            self.ignored[ind] += 1
+
+        # construct index for likelihood estimation
+        ind = np.where(self.ignored<self.Nclasses)[0]
+        self.use = ind
+        ind = np.where(self.ignored==self.Nclasses)[0]
+        self.ignore = ind
 
     def calc_coeff_priors(self):
         """
@@ -326,7 +341,7 @@ class HBsep(object):
         for i in range(self.Nclasses):
             key = self.class_labels[i]
             Ntemplate = np.int(self.model_fluxes[key].shape[0] / self.Nzs[i])
-            self.template_weights[key] = np.array(hyperparms[count:count+Ntemplate])
+            self.template_weights[key] = np.exp(np.array(hyperparms[count:count+Ntemplate]))
             self.template_weights[key] /= self.template_weights[key].sum()
             count += Ntemplate
 
@@ -346,10 +361,10 @@ class HBsep(object):
                 self.z_pow[key] = hyperparms[count:count+1]
                 count += 1
 
-        self.class_weights = np.array(hyperparms[-self.Nclasses:])
+        self.class_weights = np.exp(np.array(hyperparms[-self.Nclasses:]))
         self.class_weights /= self.class_weights.sum()
     
-    def calc_neg_lnlike(self,method):
+    def calc_neg_lnlike(self,method,floor=1e-100):
         """
         Calculate marginalized likelihoods.
         """
@@ -357,11 +372,16 @@ class HBsep(object):
         self.marg_like = np.zeros(self.Ndata)
         for i in range(self.Nclasses):
             key = self.class_labels[i]
-            self.tzc_marg_like[key] = np.sum(self.zc_marg_like[key] * self.template_weights[key][None,:],
-                                             axis=1)
-            self.marg_like += self.tzc_marg_like[key] * self.class_weights[i] 
+            ind = self.use
+            self.tzc_marg_like[key] = np.zeros(self.Ndata)
+            self.tzc_marg_like[key][ind] = np.sum(self.zc_marg_like[key][ind] * 
+                                                  self.template_weights[key][None,:],
+                                                  axis=1)
+            self.marg_like += np.maximum(self.tzc_marg_like[key] * 
+                                         self.class_weights[i],
+                                         floor)
 
-        self.neg_log_likelihood = -1.0 * np.sum(np.log(self.marg_like))
+        self.neg_log_likelihood = -1.0 * np.sum(np.log(self.marg_like[ind]))
 
     def call_neg_lnlike(self,hyperparms,method=1):
         """
@@ -372,7 +392,7 @@ class HBsep(object):
         self.calc_neg_lnlike(method)
         return self.neg_log_likelihood
 
-    def init_hyperparms(self):
+    def init_hyperparms(self,z_median,z_pow):
         """
         Initialize flattened list of hyperparameters.
         """
@@ -381,7 +401,7 @@ class HBsep(object):
         for i in range(self.Nclasses):
             key = self.class_labels[i]
             Ntemplate = self.model_fluxes[key].shape[0] / self.Nzs[i]
-            p0 = np.append(p0,np.ones(Ntemplate) * 1./Ntemplate)
+            p0 = np.append(p0,np.ones(Ntemplate) * np.log(1./Ntemplate))
         for i in range(self.Nclasses):
             if self.Nzs[i]!=1:
                 p0 = np.append(p0,np.ones(Ntemplate) * z_median[i])
@@ -389,7 +409,7 @@ class HBsep(object):
             if self.Nzs[i]!=1:                    
                 p0 = np.append(p0,z_pow[i])
         for i in range(self.Nclasses):
-            p0 = np.append(p0,1./self.Nclasses)
+            p0 = np.append(p0,np.log(1./self.Nclasses))
 
         return p0
 
@@ -401,7 +421,7 @@ class HBsep(object):
         for i in range(self.Nclasses):
             key = self.class_labels[i]
             Ntemplate = self.model_fluxes[key].shape[0] / self.Nzs[i]
-            bounds.extend([(0,1) for j in range(Ntemplate)])
+            bounds.extend([(-1.*np.Inf,np.Inf) for j in range(Ntemplate)])
         for i in range(self.Nclasses):
             if self.Nzs[i]!=1:
                 bounds.extend([(0.05,self.z_maxs[i]) for j in range(Ntemplate)])
@@ -409,22 +429,79 @@ class HBsep(object):
             if self.Nzs[i]!=1:                    
                 bounds.extend([(0.,4)])
         for i in range(self.Nclasses):
-            bounds.extend([(0.,1)])
+            bounds.extend([(-1.*np.Inf,np.Inf)])
 
         return bounds
             
-    def optimize(self,z_median,z_pow,init_p0=None):
+    def optimize(self,z_median=None,z_pow=None,init_p0=None,
+                 eps=1.e-1,factr=1.e7,maxfun=1):
         """
         Optimize using scipy's fmin_l_bfgs_b
         """
         if init_p0!=None:
             p0 = init_p0
         else:
-            p0 = self.init_hyperparms()
+            p0 = self.init_hyperparms(z_median,z_pow)
 
         bounds = self.init_hyperparm_bounds()
 
         self.init_nll = self.call_neg_lnlike(p0)
         result = fmin_l_bfgs_b(self.call_neg_lnlike,p0,approx_grad=1,
-                               bounds=bounds,epsilon=1.e-2,maxiter=1)
-                
+                               bounds=bounds,epsilon=eps,factr=factr,
+                               maxfun=maxfun,iprint=2)
+
+        return self.call_neg_lnlike(result[0]),result[0]
+
+    def get_relative_likelihoods(self):
+
+        relative_likelihoods = np.zeros((self.Ndata,self.Nclasses)) 
+        for i in range(self.Nclasses):
+            key = self.class_labels[i]
+            relative_likelihoods[:,i] = self.tzc_marg_like[key] * self.class_weights[i]
+
+        relative_likelihoods /= relative_likelihoods.sum(axis=1)[:,None]
+        return relative_likelihoods
+
+    def write_fits_table(self,filename,data,labels):
+
+        cols = pf.ColDefs([pf.Column(name  = labels[i],
+                                     format= 'E',
+                                     array = data[:,i])
+                           for i in range(len(labels))])
+        
+        tbhdu = pf.new_table(cols)
+        hdu   = pf.PrimaryHDU(np.arange(10))
+    
+        tblist = pf.HDUList([hdu,tbhdu])
+        tblist.writeto(filename,clobber=True)
+
+    def write_relative_likelihoods(self,filename):
+
+        likes = self.get_relative_likelihoods()
+        flags = np.ones(likes.shape[0])
+
+        ind = np.in1d(self.ignore,np.arange(likes.shape[0]))
+        flags[ind] = 0.0
+
+        out = np.zeros((likes.shape[0],likes.shape[1]+1))
+        out[:,:-1] = likes
+        out[:,-1]  = flags
+        labels = [self.class_labels[i] for i in range(self.Nclasses)]
+        labels.append('used')
+        self.write_fits_table(filename,out,labels)
+
+    def write_array(self,filename,array,label):
+
+        self.write_fits_table(filename,np.atleast_2d(array)
+                              ,label)
+
+    def write_minchi2(self,filename):
+
+        labels = []
+        minchi2s = np.zeros((self.Ndata,self.Nclasses))
+        for i in range(self.Nclasses):
+            key = self.class_labels[i]
+            labels.append(key+' minchi2')
+            minchi2s[:,i] = self.chi2s[key].min(axis=1)
+
+        self.write_fits_table(filename,minchi2s,labels)

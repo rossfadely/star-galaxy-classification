@@ -31,21 +31,25 @@ class VVDSfitter(object):
         l = commands.getoutput('ls '+uncertaintydir)
         self.uncertainty = self.get_spectra(l.split(),uncertaintydir)
 
-        # Calc S/N
-        self.SNspectra = np.abs(self.spectra) / self.uncertainty
 
         # Load templates
         l = commands.getoutput('ls '+starsdir)
         self.input_stars, self.Nstar = self.get_2col_ascii_data(l.split(),starsdir)
         l = commands.getoutput('ls '+galsdir)
         self.input_gals, self.Ngal = self.get_2col_ascii_data(l.split(),galsdir)
-
+        
+        self.stars = np.zeros((self.Nstar,self.wavelengths.shape[0]))
+        for i in range(self.Nstar):
+            self.stars[i,:] = self.input_stars[i][1,:]
+        self.gals = np.zeros((self.Ngal,self.wavelengths.shape[0]))
+        for i in range(self.Nstar):
+            self.gals[i,:] = self.input_gals[i][1,:]
         # Redshifts galaxies
-        self.input_gals = self.redshift_gals()
+        #self.input_gals = self.redshift_gals()
 
         # Regrid templates
-        self.stars = self.regrid_templates(self.input_stars,self.Nstar)
-        self.gals = self.regrid_templates(self.input_gals,self.Ngal)
+        #self.stars = self.regrid_templates(self.input_stars,self.Nstar)
+        #self.gals = self.regrid_templates(self.input_gals,self.Ngal)
 
         # fit spectra
         self.star_scale,self.star_chi2,self.star_idx = self.fit_spectra('stars')
@@ -66,6 +70,7 @@ class VVDSfitter(object):
             d = np.loadtxt(l)
             assert d.shape[1]==2
             templates[i] = d.T 
+            if i%100==0: print 'Read %dth model' % i
 
         os.chdir(curdir)
         return templates, len(list)
@@ -128,6 +133,7 @@ class VVDSfitter(object):
 
         # brutal, this is a bag of butts
         for i in range(Ntemplates):
+            print 'regriding',i
             fnew = wVVDS * 0.0
             w = template_dict[i][0,:].astype('float64')
             f = template_dict[i][1,:].astype('float64')
@@ -174,12 +180,14 @@ class VVDSfitter(object):
         for i in range(Nspectra):
             s = np.zeros(models.shape[0])
             c = np.zeros(models.shape[0])
-            iv = 1. / self.uncertainty[i,:]**2.
-            y  = self.spectra[i,:]
+            ind = self.uncertainty[i,:]>0.0
+            iv = 1. / self.uncertainty[i,ind]**2.
+            y  = self.spectra[i,ind]
             for j in range(models.shape[0]):
-                s[j] = np.dot(models[j,:],y * iv) / \
-                    np.dot(models[j,:],models[j,:] *iv)
-                c[j] = np.sum((y-s[j]*models[j,:])**2.*iv)
+                m = models[j,ind]
+                s[j] = np.dot(m,y * iv) / \
+                    np.dot(m,m *iv)
+                c[j] = np.sum((y-s[j]*m)**2.*iv)
             ind = np.argsort(c)[0]
             scales[i] = s[ind]
             minchi2[i] = c[ind]
@@ -193,14 +201,15 @@ class VVDSfitter(object):
         f.write('# starchi2 starscale starindex galchi2'+
                 ' galscale galindex meanSN median SN\n')
         for i in range(self.spectra.shape[0]):
+            ind = self.uncertainty[i,:]>0
             string = '%e %e %d %e %e %d %e %e\n' % (self.star_chi2[i],
-                                   self.star_scale[i],
-                                   self.star_idx[i],
-                                   self.gal_chi2[i],
-                                   self.gal_scale[i],
-                                   self.gal_idx[i],
-                                   np.mean(self.SNspectra[i,:]),
-                                   np.median(self.SNspectra[i,:]))
+                                                    self.star_scale[i],
+                                                    self.star_idx[i],
+                                                    self.gal_chi2[i],
+                                                    self.gal_scale[i],
+                                                    self.gal_idx[i],
+                                                    np.mean(self.spectra[i,ind] / self.uncertainty[i,ind]),
+                                                    np.median(self.spectra[i,ind] / self.uncertainty[i,ind]))
             if i%1000==0: print 'Wrote the %dth spectrum' % i
             f.write(string)
         f.close()
