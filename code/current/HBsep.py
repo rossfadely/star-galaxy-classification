@@ -15,13 +15,13 @@ class HBsep(object):
 
         self.Nzs = Nzs
         self.z_min = z_min
+        
         if z_maxs is None:
             self.z_maxs = np.zeros(len(Nzs))
         else:
             self.z_maxs = z_maxs
+            
         self.class_labels = class_labels
-
-        # Number of filters and classes
         self.Nclasses = len(class_labels)
 
         self.model_mags = {}
