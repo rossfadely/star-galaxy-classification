@@ -10,7 +10,7 @@ class HBsep(object):
     """
     Gonna build comments....
     """
-    def __init__(self,class_labels,Nzs,z_maxs=None,z_min=0.):
+    def __init__(self, class_labels, Nzs, z_maxs=None, z_min=0.):
 
         self.Nzs = Nzs
         self.z_min = z_min
@@ -26,7 +26,7 @@ class HBsep(object):
         self.model_mags = {}
         self.model_fluxes = {}
 
-    def get_filter_norm(self,filter_list_path):
+    def get_filter_norm(self, filter_list_path):
         """
         Return the normalizing flux in AB for given
         filter list.
@@ -37,8 +37,8 @@ class HBsep(object):
         self._make_models(None,filter_list_path,1,
                          0.,0.,np.zeros((2,2)).astype(np.float64),True)
 
-    def _make_models(self,sed_list_path,filter_list_path,
-                     Nz,zmin,zmax,models,filter_only=False):
+    def _make_models(self, sed_list_path, filter_list_path,
+                     Nz, zmin,zmax,models, filter_only=False):
         """
         Prepare for and call model maker.
         """
@@ -70,7 +70,7 @@ class HBsep(object):
                                 filter_only,Nz,zmin,zmax,
                                 filt_norm_p,models_p)
         
-    def create_models(self,filter_list_path,list_of_sed_list_paths,
+    def create_models(self, filter_list_path, list_of_sed_list_paths,
                       normalize_models=True):
         """
         For each class, produce models over redshifts
@@ -109,7 +109,7 @@ class HBsep(object):
             print '\nCreated '+key+' models' 
 
 
-    def read_and_process_data(self,data,
+    def read_and_process_data(self, data,
                               missing_mags=None,
                               limiting_mags=None,
                               limiting_sigma=None,
@@ -129,7 +129,7 @@ class HBsep(object):
         self.process_data(inflation_factor,
                           normalize_flux)
 
-    def read_data(self,data):
+    def read_data(self, data):
         """
         Read in data file or array, do some moderate
         error checking.
@@ -156,7 +156,7 @@ class HBsep(object):
         self.shape_check(data,'Data Error:')
         return data
 
-    def shape_check(self,data,item):
+    def shape_check(self, data, item):
         """
         Simple shape checks
         """
@@ -165,7 +165,7 @@ class HBsep(object):
         assert np.mod(data.shape[1],2)==0, '\n\n'+item+' Ncolumn is not even, what gives?'
 
 
-    def process_data(self,inflation_factor,normalize_flux):
+    def process_data(self, inflation_factor, normalize_flux):
         """
         Turn data into flux, flux err
         """
@@ -234,8 +234,8 @@ class HBsep(object):
             fitter.fit_models(Ndata,Nmodel,Nfilter,modelsp,datap,dataerrp,
                               coeffsp,coefferrsp,chi2sp)
 
-    def coefficient_marginalization(self,Nstep_factor=2,Nsigma=5,
-                                    delta_chi2_cut=32.,floor=1e-100):
+    def coefficient_marginalization(self, Nstep_factor=2, Nsigma=5,
+                                    delta_chi2_cut=32., floor=1e-100):
         """
         Marginalize over the fit coefficients.
         """
@@ -303,7 +303,7 @@ class HBsep(object):
             self.coeff_prior_means[key] = mean
             self.coeff_prior_vars[key] = var
 
-    def apply_and_marg_redshift_prior(self,method):
+    def apply_and_marg_redshift_prior(self, method):
         """
         Apply redshift prior and margninalize over redshift
         """
@@ -330,7 +330,7 @@ class HBsep(object):
                 for j in range(Ntemplate):
                     self.zc_marg_like[key][:,j] = np.sum(prior_weighted_like[:,j*Nz:j*Nz+Nz],axis=1)
 
-    def assign_hyperparms(self,hyperparms,method):
+    def assign_hyperparms(self, hyperparms, method):
         """
         Assign hyperparameters from a flattened list (from optimizer)
         """
@@ -364,7 +364,7 @@ class HBsep(object):
         self.class_weights = np.exp(np.array(hyperparms[-self.Nclasses:]))
         self.class_weights /= self.class_weights.sum()
     
-    def calc_neg_lnlike(self,method,floor=1e-100):
+    def calc_neg_lnlike(self, method, floor=1e-100):
         """
         Calculate marginalized likelihoods.
         """
@@ -383,7 +383,7 @@ class HBsep(object):
 
         self.neg_log_likelihood = -1.0 * np.sum(np.log(self.marg_like[ind]))
 
-    def call_neg_lnlike(self,hyperparms,method=1):
+    def call_neg_lnlike(self, hyperparms, method=1):
         """
         Give this to optimizer to call.
         """
@@ -433,8 +433,8 @@ class HBsep(object):
 
         return bounds
             
-    def optimize(self,z_median=None,z_pow=None,init_p0=None,
-                 eps=1.e-1,factr=1.e7,maxfun=1):
+    def optimize(self, z_median=None, z_pow=None, init_p0=None,
+                 eps=1.e-1, factr=1.e7, maxfun=1):
         """
         Optimize using scipy's fmin_l_bfgs_b
         """
@@ -462,7 +462,7 @@ class HBsep(object):
         relative_likelihoods /= relative_likelihoods.sum(axis=1)[:,None]
         return relative_likelihoods
 
-    def write_fits_table(self,filename,data,labels):
+    def write_fits_table(self, filename, data, labels):
 
         cols = pf.ColDefs([pf.Column(name  = labels[i],
                                      format= 'E',
@@ -475,7 +475,7 @@ class HBsep(object):
         tblist = pf.HDUList([hdu,tbhdu])
         tblist.writeto(filename,clobber=True)
 
-    def write_relative_likelihoods(self,filename):
+    def write_relative_likelihoods(self, filename):
 
         likes = self.get_relative_likelihoods()
         flags = np.ones(likes.shape[0])
@@ -490,12 +490,12 @@ class HBsep(object):
         labels.append('used')
         self.write_fits_table(filename,out,labels)
 
-    def write_array(self,filename,array,label):
+    def write_array(self, filename, array, label):
 
         self.write_fits_table(filename,np.atleast_2d(array)
                               ,label)
 
-    def write_minchi2(self,filename):
+    def write_minchi2(self, filename):
 
         labels = []
         minchi2s = np.zeros((self.Ndata,self.Nclasses))
