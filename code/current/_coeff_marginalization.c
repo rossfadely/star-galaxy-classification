@@ -85,9 +85,6 @@ void single_coeff_marginalization(long Nstep,double Nsigma,
             prior = log_norm_coeff / cval;
             *marg_like += h * w * like * prior;            
         }
-	//printf("%ld %g %g %g %g\n",ii,cval,lncval,chi2,detdfluxerr);
-	//printf("%ld %g %g %g %g\n",ii,prior_mean,prior_var,log_norm_coeff,log_norm_coeff/cval);
-	//printf("%ld %g %g %g %g %g\n",ii,prior,like,max_like,coeff,coefferr);
     }
     
 }
