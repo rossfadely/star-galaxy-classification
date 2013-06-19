@@ -117,14 +117,15 @@ class HBsep(object):
     def read_and_process_data(self, data,
                               missing_mags=None,
                               limiting_mags=None,
-                              limiting_sigma=None,
+                              limiting_sigmas=None,
                               normalize_flux=True,
                               inflation_factor=1e6):
         """
         Read in data location, process.
         """
-        self.limiting_mags = limiting_mags
         self.missing_mags = missing_mags
+        self.limiting_mags = limiting_mags
+        self.limiting_sigmas = limiting_sigmas
 
         # read and process data
         data = self.read_data(data)
@@ -195,13 +196,13 @@ class HBsep(object):
 
         # account for anything fainter than limiting magnitudes
         if self.limiting_mags is not None:
-            assert self.limiting_sigma is not None, \
+            assert self.limiting_sigmas is not None, \
                 'Must specify Nsigma for limiting mags'
             for i in range(self.Nfilter):
                 ind = np.where(self.mags >= self.limiting_mags[i])[0]
                 self.fluxes[ind, i] = 0.0
                 self.flux_errors[ind, i] = 10.0**(-0.4*self.limiting_mags[i]) \
-                    * self.limiting_sigma[i]
+                    * self.limiting_sigmas[i]
 
         # normalize if desired
         if normalize_flux:
