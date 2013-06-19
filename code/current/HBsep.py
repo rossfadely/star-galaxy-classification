@@ -198,7 +198,7 @@ class HBsep(object):
             assert self.limiting_sigma is not None, \
                 'Must specify Nsigma for limiting mags'
             for i in range(self.Nfilter):
-                ind = np.where(self.mags <= self.limiting_mags[i])[0]
+                ind = np.where(self.mags >= self.limiting_mags[i])[0]
                 self.fluxes[ind, i] = 0.0
                 self.flux_errors[ind, i] = 10.0**(-0.4*self.limiting_mags[i]) \
                     * self.limiting_sigma[i]
