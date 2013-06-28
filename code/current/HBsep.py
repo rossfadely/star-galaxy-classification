@@ -190,16 +190,18 @@ class HBsep(object):
 
         # account for missing data
         if self.missing_mags is not None:
-            ind = np.where(self.mags == self.missing_mags)[0]
-            self.fluxes[ind] = np.median(self.fluxes)
-            self.flux_errors[ind] = self.fluxes[ind] * inflation_factor
+            Nind, find = np.where(self.mags == self.missing_mags)
+            ind = np.where(self.fluxes > 0)[0]
+            self.fluxes[Nind,find] = np.median(self.fluxes[ind])
+            self.flux_errors[Nind,find] = self.fluxes[Nind,find] * \
+                inflation_factor
 
         # account for anything fainter than limiting magnitudes
         if self.limiting_mags is not None:
             assert self.limiting_sigmas is not None, \
                 'Must specify Nsigma for limiting mags'
             for i in range(self.Nfilter):
-                ind = np.where(self.mags >= self.limiting_mags[i])[0]
+                ind = np.where(self.mags[:,i] >= self.limiting_mags[i])[0]
                 self.fluxes[ind, i] = 0.0
                 self.flux_errors[ind, i] = 10.0**(-0.4*self.limiting_mags[i]) \
                     * self.limiting_sigmas[i]
@@ -388,9 +390,9 @@ class HBsep(object):
         """
         self.tzc_marg_like = {}
         self.marg_like = np.zeros(self.Ndata)
+        ind = self.use
         for i in range(self.Nclasses):
             key = self.class_labels[i]
-            ind = self.use
             self.tzc_marg_like[key] = np.zeros(self.Ndata)
             self.tzc_marg_like[key][ind] = \
                 np.sum(self.zc_marg_like[key][ind] *
@@ -405,6 +407,9 @@ class HBsep(object):
         """
         Give this to optimizer to call.
         """
+        weights = np.exp(np.array(hyperparms[-self.Nclasses:]))
+        if np.Inf in weights:
+            return np.Inf
         self.assign_hyperparms(hyperparms, method)
         self.apply_and_marg_redshift_prior(method)
         self.calc_neg_lnlike(method)
