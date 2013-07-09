@@ -498,7 +498,7 @@ class HBsep(object):
         if Nlabels > 1:
             cols = pf.ColDefs([pf.Column(name=labels[i], format='E',
                                          array=data[:, i]) 
-                               for i in range(len(labels))])
+                               for i in range(Nlabels)])
         else:
             cols = pf.ColDefs([pf.Column(name=labels[0], format='E',
                                          array=data[0,:])])
