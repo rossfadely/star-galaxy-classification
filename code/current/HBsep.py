@@ -494,8 +494,14 @@ class HBsep(object):
         Write a FITS data table to given `filename` usings `labels` for 
         column names.
         """
-        cols = pf.ColDefs([pf.Column(name=labels[i], format='E',
-                           array=data[:, i]) for i in range(len(labels))])
+        Nlabels = len(labels)
+        if Nlabels > 1:
+            cols = pf.ColDefs([pf.Column(name=labels[i], format='E',
+                                         array=data[:, i]) 
+                               for i in range(len(labels))])
+        else:
+            cols = pf.ColDefs([pf.Column(name=labels[0], format='E',
+                                         array=data[0,:])])
 
         tbhdu = pf.new_table(cols)
         hdu = pf.PrimaryHDU(np.arange(10))
