@@ -29,7 +29,7 @@
 
 
 // Input Files
-char filtersinput[]  = "/Users/rossfadely/Dropbox/SG/input/cosmos_ugriz.in";
+char filtersinput[]  = "YOUR_PATH";
 char galssedinput[]  = "YOUR_PATH";
 char starssedinput[] = "YOUR_PATH";
  
