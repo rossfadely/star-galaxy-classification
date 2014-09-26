@@ -66,12 +66,12 @@ def log_multivariate_gaussian(x, mu, V, Vinv=None, method=1):
         method = 1
 
     if method == 0:
-        Vchol = np.array([linalg.cholesky(V[i], lower=True)
+        Vchol = np.array([np.linalg.cholesky(V[i], lower=True)
                           for i in range(V.shape[0])])
 
-        # we may be more efficient by using scipy.linalg.solve_triangular
+        # we may be more efficient by using scipy.np.linalg.solve_triangular
         # with each cholesky decomposition
-        VcholI = np.array([linalg.inv(Vchol[i])
+        VcholI = np.array([np.linalg.inv(Vchol[i])
                           for i in range(V.shape[0])])
         logdet = np.array([2 * np.sum(np.log(np.diagonal(Vchol[i])))
                            for i in range(V.shape[0])])
@@ -85,12 +85,12 @@ def log_multivariate_gaussian(x, mu, V, Vinv=None, method=1):
 
     elif method == 1:
         if Vinv is None:
-            Vinv = np.array([linalg.inv(V[i])
+            Vinv = np.array([np.linalg.inv(V[i])
                              for i in range(V.shape[0])]).reshape(Vshape)
         else:
             assert Vinv.shape == Vshape
 
-        logdet = np.log(np.array([linalg.det(V[i])
+        logdet = np.log(np.array([np.linalg.det(V[i])
                                   for i in range(V.shape[0])]))
         logdet = logdet.reshape(Vshape[:-2])
 
