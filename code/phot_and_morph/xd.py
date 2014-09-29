@@ -6,6 +6,7 @@ Modifications by Ross Fadely:
 - 2014-09-23: port and erase astroML dependencies.
 - 2014-09-25: convert class to functions for easy multiprocessing,
               only Estep seems to be useful across mutliple threads.
+- 2014-09-29: add simple covarince regularization to avoid singular matricies.
 
 Extreme deconvolution solver
 
@@ -24,7 +25,7 @@ from sklearn.mixture import GMM
 from utils import logsumexp, log_multivariate_gaussian
 
 def XDGMM(X, Xcov, n_components, n_iter=100, tol=1E-5, Nthreads=1, R=None, 
-          init_n_iter=10, verbose=False):
+          init_n_iter=10, w=None, verbose=False):
     """
     Extreme Deconvolution
 
@@ -42,15 +43,19 @@ def XDGMM(X, Xcov, n_components, n_iter=100, tol=1E-5, Nthreads=1, R=None,
           Input data. shape = (n_samples, n_features)
     Xcov: array_like
           Covariance of input data.  shape = (n_samples, n_features, n_features)
-    R :   array_like
+    R:    array_like
           (TODO: not implemented)
           Transformation matrix from underlying to observed data.  If
           unspecified, then it is assumed to be the identity matrix.
+    w:    float or array_like
+          if float - w * np.eye is added to V
+          if vector - np.diag(w) is added to V
+          if array - w is added to V 
     Notes
     -----
     This implementation follows Bovy et al. arXiv 0905.2979
     """
-    model = xd_model(X.shape, n_components, n_iter, tol, Nthreads, verbose)
+    model = xd_model(X.shape, n_components, n_iter, tol, w, Nthreads, verbose)
 
     if R is not None:
         raise NotImplementedError("mixing matrix R is not yet implemented")
@@ -63,14 +68,15 @@ def XDGMM(X, Xcov, n_components, n_iter=100, tol=1E-5, Nthreads=1, R=None,
 
     # initialize components via a few steps of GMM
     # this doesn't take into account errors, but is a fast first-guess
-    t0 = time()
-    gmm = GMM(model.n_components, n_iter=init_n_iter, covariance_type='full').fit(X)
-    model.mu = gmm.means_
-    model.alpha = gmm.weights_
-    model.V = gmm.covars_
+    if model.V is None:
+        t0 = time()
+        gmm = GMM(model.n_components, n_iter=init_n_iter, covariance_type='full').fit(X)
+        model.mu = gmm.means_
+        model.alpha = gmm.weights_
+        model.V = gmm.covars_
 
-    if model.verbose:
-        print 'Initalization done in %.2g sec' % (time() - t0)
+        if model.verbose:
+            print 'Initalization done in %.2g sec' % (time() - t0)
 
     logL = model.logL(X, Xcov)
 
@@ -183,7 +189,7 @@ def _Mstep(model, q, b, B):
     tmp = m_b[:, :, np.newaxis, :] * m_b[:, :, :, np.newaxis]
     tmp += B
     tmp *= q[:, :, np.newaxis, np.newaxis]
-    model.V = tmp.sum(0) / qj[:, np.newaxis, np.newaxis]
+    model.V = (tmp.sum(0) + model.w[np.newaxis, :, :]) / (qj[:, np.newaxis, np.newaxis] + 1)
 
     return model
 
@@ -191,7 +197,7 @@ class xd_model(object):
     """
     Class to store all things pertinent to the XD model. 
     """
-    def __init__(self, xshape, n_components, n_iter, tol, Nthreads, verbose):
+    def __init__(self, xshape, n_components, n_iter, tol, w, Nthreads, verbose):
         self.n_samples = xshape[0]
         self.n_features = xshape[1]
         self.n_components = n_components
@@ -203,6 +209,17 @@ class xd_model(object):
         self.V = None
         self.mu = None
         self.alpha = None
+
+        # construct simple cov regularization term.  
+        # regularize only along the diagonal, and same for each component.
+        if type(w) == float:
+            w = np.eye(self.n_features) * w
+        elif type(w) == np.ndarray:
+            if w.size == self.n_features:
+                w = np.diag(w)
+        else:
+            w = np.diag(np.zeros(self.n_features))
+        self.w = w
 
     def logprob_a(self, X, Xcov):
         """
@@ -251,11 +268,11 @@ class xd_model(object):
         """
         return np.sum(logsumexp(self.logprob_a(X, Xcov), -1))
 
-    def sample(self, size=1):
-        shape = tuple(np.atleast_1d(size)) + (self.mu.shape[1],)
+    def sample(self, alpha, mu, V, size=1):
+        shape = tuple(np.atleast_1d(size)) + (mu.shape[1],)
         npts = np.prod(size)
 
-        alpha_cs = np.cumsum(self.alpha)
+        alpha_cs = np.cumsum(alpha)
         r = np.atleast_1d(np.random.random(size))
         r.sort()
 
@@ -264,19 +281,40 @@ class xd_model(object):
         if ind[-1] != size:
             ind[-1] = size
 
-        draw = np.vstack([np.random.multivariate_normal(self.mu[i],
-                                                        self.V[i],
+        draw = np.vstack([np.random.multivariate_normal(mu[i],
+                                                        V[i],
                                                         (ind[i + 1] - ind[i],))
-                          for i in range(len(self.alpha))])
+                          for i in range(len(alpha))])
 
         return draw.reshape(shape)
 
+    def posterior(self, X, Xcov, sample=True):
+        """
+        Return the posterior mean and covariance given the xd model.
+        """
+        draw = None
+        post_mu = np.zeros_like(X.shape[0], self.alpha.shape, X.shape[1])
+        post_V = np.zeros_like(Xcov.shape[0], self.alpha.shape,
+                               Xcov.shape[1], Xcov.shape[2])
+
+        iV = np.zeros_like(self.V)
+        for i in range(self.n_components):
+            iV[i] = np.linalg.inv(self.V[i])
+
+        for i in range(Xcov.shape[0]):
+            Xicov = np.linalg.inv(Xcov[i])
+            for j in range(self.n_components):
+                post_V[i, j] = np.linalg.inv(iV[j] + Xicov)
+                post_mu[i, j] = np.dot(iV[j], self.mu[j])
+                post_mu[i, j] += np.dot(Xicov, X[i])
+                post_mu[i, j] = np.dot(post_V[i, j], post_mu[i, j])
 
 if __name__ == '__main__':
 
     from matplotlib import use; use('Agg')
     from utils import fetch_mixed_epoch
     
+    import os
     import matplotlib.pyplot as pl
 
     epoch = 10
@@ -306,9 +344,17 @@ if __name__ == '__main__':
     Xcov[:, range(Xerr.shape[1]), range(Xerr.shape[1])] = Xerr ** 2
     Xcov = np.tensordot(np.dot(Xcov, W.T), W, (-2, -1))
 
-    xd = XDGMM(X, Xcov, 32, n_iter=300, Nthreads=10, verbose=True)
+    if False:
+        w = np.ones(X.shape[1]) * np.inf
+        for i in range(X.shape[0]):
+            w = np.minimum(w, np.diag(Xcov[i]))
+        w /= 10.
+    else:
+        w = None
+
+    xd = XDGMM(X, Xcov, 32, n_iter=40, w=w, Nthreads=10, verbose=True)
 
     import cPickle
-    f=open('/data2/rfadely/SG/xd_32_%d.pkl' % epoch, 'wb')
+    f=open(os.environ['sgdata'] + 'xd_32_%d.pkl' % epoch, 'wb')
     cPickle.dump(xd, f)
     f.close()
