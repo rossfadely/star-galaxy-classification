@@ -1,0 +1,101 @@
+
+%%%%%%%%%%%%%%%
+% Define a switch for submission mode
+%%%%%%%%%%%%%%%
+
+\newif\ifsubmode
+\submodefalse
+
+%%%%%%%%%%%%%%%
+% Define a switch to print the figures when in submission mode
+%%%%%%%%%%%%%%%
+
+\newif\ifprintfig
+\printfigtrue
+
+%%%%%%%%%%%%%%%
+% Define a switch to emulate ApJ style
+%%%%%%%%%%%%%%%
+
+\newif\ifemulate
+\emulatetrue
+
+%%%%%%%%%%%%%%%
+% Preamble
+%%%%%%%%%%%%%%%
+
+\ifsubmode
+  \documentclass[12pt,preprint]{aastex}
+  \received{}
+  \accepted{}
+  \journalid{}{}
+  \articleid{}{}
+\else
+   \documentclass{emulateapj}
+\fi
+\usepackage{amssymb,amsmath,mathrsfs,hyperref,datetime}
+
+\newcommand{\datavector}[1]{\boldsymbol{#1}}
+\newcommand{\flux}{\datavector{F}}
+\newcommand{\uncertainty}{\datavector{\sigma_F}}
+\newcommand{\hyperpars}{\datavector{\alpha}}
+\newcommand{\setofall}[1]{\left\{{#1}\right\}}
+\newcommand{\allflux}{\setofall{\flux_i}}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand\rf[1]{{\bf [RF: #1]}}
+\newcommand\bw[1]{{\bf [BW: #1]}}
+
+\def\urltilda{\kern -.15em\lower .7ex\hbox{\~{}}\kern .04em}
+
+\pdfoutput=1
+
+\begin{document}
+
+\title{Joint photometric modeling for improved measurements in imaging surveys.}
+\author{Ross~Fadely\altaffilmark{1},
+        David~W.~Hogg\altaffilmark{1,2},
+        \& Beth~Willman\altaffilmark{3}}
+\altaffiltext{1}{Center~for~Cosmology~and~Particle~Physics, Department~of~Physics, New~York~University, 4~Washington~Place, New~York, NY 10003, USA}
+\altaffiltext{2}{Max-Planck-Institut f\"ur Astronomie, K\"onigstuhl 17, 69117 Heidelberg, Germany}
+\altaffiltext{3}{Haverford College, Department of Physics and Astronomy, 370 Lancaster Ave., Haverford, PA, 19041}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% 					Abstract
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{abstract}
+Large scale astronomical imaging surveys have fundamentally changed our 
+understanding of the cosmos, and promise to continue to do so with 
+forthcoming surveys like the Large Synoptic Survey Telescope which will 
+provide greater volumes of data at increasingly fainter detection limits.  
+In order to extract the most science out of such costly missions, it is 
+important to continually explore ways to improve the way photometric 
+measurements are made.  Historically, photometric measurements are made 
+on a per object basis under our understanding of the characteristics of 
+the telescope, instruments, and astronomical sources.  We argue that it 
+is possible to improve the quality of such photometric measurements by 
+building models which incorporate the shared similarity of sources.  As 
+a demonstration, we use Extreme Deconvolution (XD) to model the joint 
+distribution of photometric quantities measured by SDSS in Stripe 82.  
+Using single epoch data, we show that our joint XD model makes predictions 
+that more closely resemble the coadded Stripe 82 data.  Looking at the 
+difference between the psf and model magnitudes in the single epoch and 
+coadded data, the average error is XX at $r\sim21$ versus an average of 
+XX for our XD posteriors.  In the case of the CMDs of globular clusters, 
+we show that the XD posteriors lessen the presence of misclassified 
+galaxies and present a narrower stellar locus.  We suggest a number of 
+improvements that can be made to provide improved photometric inferences.
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% 					Section - Introduction
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+
+
+
+\end{document}
