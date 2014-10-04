@@ -1,49 +1,20 @@
-
-%%%%%%%%%%%%%%%
-% Define a switch for submission mode
-%%%%%%%%%%%%%%%
-
-\newif\ifsubmode
-\submodefalse
-
-%%%%%%%%%%%%%%%
-% Define a switch to print the figures when in submission mode
-%%%%%%%%%%%%%%%
-
-\newif\ifprintfig
-\printfigtrue
-
-%%%%%%%%%%%%%%%
-% Define a switch to emulate ApJ style
-%%%%%%%%%%%%%%%
-
-\newif\ifemulate
-\emulatetrue
-
-%%%%%%%%%%%%%%%
-% Preamble
-%%%%%%%%%%%%%%%
-
-\ifsubmode
-  \documentclass[12pt,preprint]{aastex}
-  \received{}
-  \accepted{}
-  \journalid{}{}
-  \articleid{}{}
-\else
-   \documentclass{emulateapj}
-\fi
+\documentclass[12pt,preprint]{aastex}
 \usepackage{amssymb,amsmath,mathrsfs,hyperref,datetime}
 
 \newcommand{\datavector}[1]{\boldsymbol{#1}}
-\newcommand{\flux}{\datavector{F}}
-\newcommand{\uncertainty}{\datavector{\sigma_F}}
-\newcommand{\hyperpars}{\datavector{\alpha}}
-\newcommand{\setofall}[1]{\left\{{#1}\right\}}
-\newcommand{\allflux}{\setofall{\flux_i}}
-\newcommand{\dd}{\mathrm{d}}
+\newcommand{\data}{\datavector{y}}
+\newcommand{\datum}{\data_i}
+\newcommand{\truedatum}{\data_{{\rm true}, i}}
+\newcommand{\noiselessdata}{\tilde{\data}}
+\newcommand{\noiselessdatum}{\tilde{\datum}}
+\newcommand{\xdcov}{\datavector{V}_j}
+\newcommand{\datacov}{\datavector{C}}
+\newcommand{\postcov}{\tilde{\datacov}_{i, j}}
+\newcommand{\vmu}{\datavector{\mu}}
+\newcommand{\postmu}{\tilde{\vmu}_{i, j}}
+\newcommand{\datumcov}{\datacov_i}
+\newcommand{\transpose}{{\rm T}}
 \newcommand\rf[1]{{\bf [RF: #1]}}
-\newcommand\bw[1]{{\bf [BW: #1]}}
 
 \def\urltilda{\kern -.15em\lower .7ex\hbox{\~{}}\kern .04em}
 
@@ -52,12 +23,10 @@
 \begin{document}
 
 \title{Joint photometric modeling for improved measurements in imaging surveys.}
-\author{Ross~Fadely\altaffilmark{1},
-        David~W.~Hogg\altaffilmark{1,2},
-        \& Beth~Willman\altaffilmark{3}}
+\author{Ross~Fadely\altaffilmark{1} \&
+        David~W.~Hogg\altaffilmark{1,2}}
 \altaffiltext{1}{Center~for~Cosmology~and~Particle~Physics, Department~of~Physics, New~York~University, 4~Washington~Place, New~York, NY 10003, USA}
 \altaffiltext{2}{Max-Planck-Institut f\"ur Astronomie, K\"onigstuhl 17, 69117 Heidelberg, Germany}
-\altaffiltext{3}{Haverford College, Department of Physics and Astronomy, 370 Lancaster Ave., Haverford, PA, 19041}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -97,5 +66,52 @@ improvements that can be made to provide improved photometric inferences.
 \section{Introduction}
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% 					Section - Method
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Extreme Deconvolution}
 
+\begin{itemize}
+\item Mixture of Gaussians where each datum's observational uncertainty is accounted for.
+\item cite bovy and applicable works.
+\item regularization to avoid singularities
+\end{itemize}
+
+\subsection{Posterior estimation}
+
+After inference, the XD mixture provides an estimation for the noiseless distribution of 
+the data:
+
+\begin{eqnarray}\displaystyle
+p(\noiselessdata) = \sum_j^K \frac{\alpha_j}{\sqrt{2\pi\det{|\xdcov|}}} \exp \left (-\frac{1}{2}(\noiselessdata - \vmu_j)^\transpose \xdcov^{-1}(\noiselessdata - \vmu_j) \right )
+\quad .
+\label{eqn:noiseless}
+\end{eqnarray}
+
+In a hierarchical sense, this learned distribution provides a prior distribution on what the 
+value of a datum should be --- the distribution of the denoised data $\noiselessdata$ is 
+learned for all the observations via XD.  Using Bayes' Rule, we can estimate the posterior 
+value for a given datum
+
+\begin{eqnarray}\displaystyle
+p(\truedatum | \datum) & \propto & p(\datum | \truedatum) p(\truedatum) \\
+                                         & \propto & \frac{1}{\sqrt{2\pi\det{|\datumcov|}}} \exp \left (-\frac{1}{2}(\datum - \truedatum)^\transpose \datumcov^{-1}(\datum - \truedatum) \right ) p(\truedatum)
+\quad ,
+\label{eqn:posterior}
+\end{eqnarray}
+
+\noindent where we assume that the prior for $\truedatum$ is $p(\noiselessdata)$.  Since 
+$p(\noiselessdata)$ is a sum of Gaussian densities, and we multiply this by a Gaussian 
+likelihood, the posterior is also a sum of Gaussians.  That is, the posterior for the true 
+value of the observation is
+
+\begin{eqnarray}\displaystyle
+p(\truedatum | \datum) & \propto & \sum_j^K \frac{\alpha_j}{\sqrt{2\pi\det{|\postcov|}}} \exp \left (-\frac{1}{2}(\truedatum - \postmu)^\transpose \postcov^{-1}(\truedatum - \postmu) \right ) \\
+{\rm where,}\\
+\postcov & = & (\datumcov^{-1} + \xdcov^{-1})^{-1} \quad {\rm and,} \\
+\postmu & = &  \postcov^{-1} (\datumcov^{-1} \datum + \xdcov^{-1} \vmu_j)
+\label{eqn:posterior}
+\end{eqnarray}
 \end{document}
