@@ -4,8 +4,47 @@
 # Author - Ross Fadely
 #
 import os
+import multiprocessing
 import numpy as np
 import pyfits as pf
+
+def log_multivariate_gaussian_Nthreads(x, mu, V, Nthreads=1):
+    """
+    Use multiprocessing to calculate log likelihoods.
+    """
+    n_samples = x.shape[0]
+
+    pool = multiprocessing.Pool(Nthreads)
+    mapfn = pool.map
+    Nchunk = np.ceil(1. / Nthreads * n_samples).astype(np.int)
+
+    if len(V.shape) > 3:
+        perdatum = True
+    else:
+        perdatum = False
+
+    arglist = [None] * Nthreads
+    for i in range(Nthreads):
+        s = i * Nchunk
+        e = s + Nchunk
+        if perdatum:
+            arglist[i] = (x[s:e], mu, V[s:e])
+        else:
+            arglist[i] = (x[s:e], mu, V)
+
+    result = list(mapfn(lmg, [args for args in arglist]))
+    
+    logls = result[0]
+    for i in range(1, Nthreads):
+       logls = np.vstack((logls, result[i]))
+       
+    pool.close()
+    pool.terminate()
+    pool.join()
+    return logls
+
+def lmg(args):
+    return log_multivariate_gaussian(*args)
 
 def log_multivariate_gaussian(x, mu, V, Vinv=None, method=1):
     """
@@ -66,7 +105,7 @@ def log_multivariate_gaussian(x, mu, V, Vinv=None, method=1):
         method = 1
 
     if method == 0:
-        Vchol = np.array([np.linalg.cholesky(V[i], lower=True)
+        Vchol = np.array([np.linalg.cholesky(V[i])
                           for i in range(V.shape[0])])
 
         # we may be more efficient by using scipy.np.linalg.solve_triangular

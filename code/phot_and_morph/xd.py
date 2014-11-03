@@ -23,7 +23,7 @@ import numpy as np
 
 from time import time
 from sklearn.mixture import GMM
-from utils import logsumexp, log_multivariate_gaussian
+from utils import logsumexp, log_multivariate_gaussian, log_multivariate_gaussian_Nthreads
 from gmm_wrapper import constrained_GMM
 
 def XDGMM(X, Xcov, n_components, n_iter=100, tol=1E-5, Nthreads=1, R=None, 
@@ -126,8 +126,8 @@ def _EMstep(model, X, Xcov):
     elif model.Nthreads == 1:
         q, b, B = _Estep((T, w_m, X, model, model.n_samples))
     else:
-        assert False, 'Number of threads must be greater than 1.'
-        
+        assert False, 'Number of threads must be greater than 0.'
+
     # M step
     model = _Mstep(model, q, b, B)
 
@@ -150,12 +150,13 @@ def _Estep((T, w_m, X, model, n_samples)):
 
     # q
     q = (N * model.alpha) / np.dot(N, model.alpha)[:, None]
-    
+
     # b
     tmp = np.sum(Tinv * w_m[:, :, np.newaxis, :], -1)
     b = model.mu + np.sum(model.V * tmp[:, :, np.newaxis, :], -1)
 
     # B
+    tt = time()
     tmp = np.sum(Tinv[:, :, :, :, np.newaxis]
                  * model.V[:, np.newaxis, :, :], -2)
     B = model.V - np.sum(model.V[:, :, :, np.newaxis]
@@ -282,8 +283,12 @@ class xd_model(object):
         X = X[:, np.newaxis, :]
         Xcov = Xcov[:, np.newaxis, :, :]
         T = Xcov + self.V
-
-        return log_multivariate_gaussian(X, self.mu, T)
+        
+        if self.Nthreads == 1:
+            return log_multivariate_gaussian(X, self.mu, T)
+        else:
+            return log_multivariate_gaussian_Nthreads(X, self.mu, T,
+                                                      self.Nthreads)
 
     def logLikelihood(self, X, Xcov):
         """

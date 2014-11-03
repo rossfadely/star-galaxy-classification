@@ -173,11 +173,14 @@ def psf_minus_model_hists(epoch, model, features, filters, fgal=0.5,
     mags = [19.5, 20.5, 21.5]
 
     Xsingle, Xsinglecov = fetch_prepped_s82data(epoch, fgal, features, filters)
+    Xcoadd, Xcoaddcov = fetch_prepped_s82data(epoch, fgal, features, filters,
+                                              use_single=False)
 
     f = pl.figure(figsize=(3 * fs, fs))
     for i in range(len(mags)):
         ind = (Xsingle[:, 0] > mags[i] - w) & (Xsingle[:, 0] < mags[i] + w)
-        ind = ind & (Xsingle[:, idx] < 0.3)
+        #ind = ind & (Xsingle[:, idx] < 0.3)
+        ind = ind & (Xcoadd[:, idx] < 0.03)
         a, m, v = model.posterior(Xsingle[ind], Xsinglecov[ind])
         posts = np.zeros_like(Xsingle[ind])
         for j in range(Xsingle[ind].shape[0]):
@@ -193,27 +196,111 @@ def psf_minus_model_hists(epoch, model, features, filters, fgal=0.5,
         pl.xlabel('psf - model')
     f.savefig('../../plots/phot_and_morph/foo.png')
 
+def plot_contours_and_data(epoch, model, features, filters, fgal=0.5, idx=-1):
+    """
+    Plot the data and the contours for stars and galaxies.
+    """
+    from astroML.plotting.tools import draw_ellipse
+
+    Xsingle, Xsinglecov = fetch_prepped_s82data(epoch, fgal, features, filters)
+    Xcoadd, Xcoaddcov = fetch_prepped_s82data(epoch, fgal, features, filters,
+                                              use_single=False)
+
+    sind = Xcoadd[:, idx] < 0.03
+    gind = Xcoadd[:, idx] > 0.03
+
+    fs = 5
+    ms = 1
+    f = pl.figure(figsize=(3 * fs, 2 * fs))
+    Nstar = len(np.where(model.fixed_means[:, idx] != np.inf)[0])
+    pl.subplot(231)
+    idx = [0, -1]
+    for i in range(Nstar):
+        print i, model.V[i, idx][:, idx]
+        draw_ellipse(model.mu[i, idx], model.V[i, idx][:, idx], scales=[2],
+                     ec='k', fc='gray', alpha=0.2)
+    pl.plot(Xsingle[sind][::10, idx[0]], Xsingle[sind][::10, idx[1]], '.k',
+            ms=ms)
+    pl.xlim(18,22)
+    pl.ylim(-0.1, 0.5)
+    pl.subplot(232)
+    idx = [2, 1]
+    for i in range(Nstar):
+        print i, model.V[i, idx][:, idx]
+        draw_ellipse(model.mu[i, idx], model.V[i, idx][:, idx], scales=[2],
+                     ec='k', fc='gray', alpha=0.2)
+    pl.plot(Xsingle[sind][::10, idx[0]], Xsingle[sind][::10, idx[1]], '.k',
+            ms=ms)
+    pl.xlim(-2, 3)
+    pl.ylim(-1, 6)
+    pl.subplot(233)
+    idx = [3, 4]
+    for i in range(Nstar):
+        draw_ellipse(model.mu[i, idx], model.V[i, idx][:, idx], scales=[2],
+                     ec='k', fc='gray', alpha=0.2)
+    pl.plot(Xsingle[sind][::10, idx[0]], Xsingle[sind][::10, idx[1]], '.k',
+            ms=ms)
+    pl.xlim(-2, 3)
+    pl.ylim(-1, 3)
+    pl.subplot(234)
+    idx = [0, -1]
+    for i in range(Nstar, model.n_components):
+        print i, model.V[i, idx][:, idx]
+        draw_ellipse(model.mu[i, idx], model.V[i, idx][:, idx], scales=[2],
+                     ec='k', fc='gray', alpha=0.2)
+    pl.plot(Xsingle[gind][::10, idx[0]], Xsingle[gind][::10, idx[1]], '.k',
+            ms=ms)
+    pl.xlim(18,22)
+    pl.ylim(-0.1, 0.5)
+    pl.subplot(235)
+    idx = [2, 1]
+    for i in range(Nstar, model.n_components):
+        print i, model.V[i, idx][:, idx]
+        draw_ellipse(model.mu[i, idx], model.V[i, idx][:, idx], scales=[2],
+                     ec='k', fc='gray', alpha=0.2)
+    pl.plot(Xsingle[gind][::10, idx[0]], Xsingle[gind][::10, idx[1]], '.k',
+            ms=ms)
+    pl.xlim(-2, 3)
+    pl.ylim(-1, 6)
+    pl.subplot(236)
+    idx = [3, 4]
+    for i in range(Nstar, model.n_components):
+        draw_ellipse(model.mu[i, idx], model.V[i, idx][:, idx], scales=[2],
+                     ec='k', fc='gray', alpha=0.2)
+    pl.plot(Xsingle[gind][::10, idx[0]], Xsingle[gind][::10, idx[1]], '.k',
+            ms=ms)
+    pl.xlim(-2, 3)
+    pl.ylim(-1, 3)
+    f.savefig('../../plots/phot_and_morph/foo.png')
+
 if __name__ == '__main__':
     #one_epoch_class_check()
     #plot_misclass()
 
-    if True:
-        epoch = 3
-        N = epoch
-        K = 32
-        n_iter = 128
-        data = 's82'
-        factor = 1000.
-        features = ['psf_mag', 'model_colors', 'psf_minus_model']
-        filters = ['r', 'ur gr ri rz', 'gri']
-        message = 'pm_mc_pmm_r_all_gri'
+    epoch = 3
+    N = 30000
+    Nr = epoch
+    K = 32
+    n_iter = 128
+    Nstar = 20
+    fixed_inds = [-1]
+    data = 's82'
+    factor = 1000.
+    features = ['psf_mag', 'model_colors', 'psf_minus_model']
+    filters = ['r', 'ur gr ri rz', 'r']
+    message = 'pm_mc_pmm_r_all_r'
+    fname = 'xdmodel_%s_%d_%d_%d_%d_%s.pkl' % (data, Nr, K, n_iter, Nstar,
+                                               message)
 
-        fname = 'xdmodel_%s_%d_%d_%d_%s.pkl' % (data, N, K, n_iter, message)   
-        f = open(os.environ['sgdata'] + fname, 'rb')
-        model = cPickle.load(f)
-        f.close()
+    f = open(os.environ['sgdata'] + fname, 'rb')
+    model = cPickle.load(f)
+    f.close()
  
-        psf_minus_model_hists(epoch, model, features, filters, idx=-2)
+    if True:
+        plot_contours_and_data(epoch, model, features, filters, idx=-1)
+
+    if False:
+        psf_minus_model_hists(epoch, model, features, filters, idx=-1)
 
     if False:
         epoch = 10
