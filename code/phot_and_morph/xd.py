@@ -7,6 +7,7 @@ Modifications by Ross Fadely:
 - 2014-09-25: convert class to functions for easy multiprocessing,
               only Estep seems to be useful across mutliple threads.
 - 2014-09-29: add simple covarince regularization to avoid singular matricies.
+- 2014-11-03: add ability to fix means and align covariances.
 
 Extreme deconvolution solver
 
