@@ -23,9 +23,11 @@ import numpy as np
 from time import time
 from sklearn.mixture import GMM
 from utils import logsumexp, log_multivariate_gaussian
+from gmm_wrapper import constrained_GMM
 
 def XDGMM(X, Xcov, n_components, n_iter=100, tol=1E-5, Nthreads=1, R=None, 
-          init_n_iter=10, w=None, verbose=False):
+          init_n_iter=10, w=None, model=None, fixed_means=None,
+          aligned_covs=None, verbose=False):
     """
     Extreme Deconvolution
 
@@ -42,7 +44,8 @@ def XDGMM(X, Xcov, n_components, n_iter=100, tol=1E-5, Nthreads=1, R=None,
     X:    array_like
           Input data. shape = (n_samples, n_features)
     Xcov: array_like
-          Covariance of input data.  shape = (n_samples, n_features, n_features)
+          Covariance of input data.  shape = (n_samples, n_features,
+          n_features)
     R:    array_like
           (TODO: not implemented)
           Transformation matrix from underlying to observed data.  If
@@ -55,7 +58,9 @@ def XDGMM(X, Xcov, n_components, n_iter=100, tol=1E-5, Nthreads=1, R=None,
     -----
     This implementation follows Bovy et al. arXiv 0905.2979
     """
-    model = xd_model(X.shape, n_components, n_iter, tol, w, Nthreads, verbose)
+    if model is None:
+        model = xd_model(X.shape, n_components, n_iter, tol, w, Nthreads,
+                         fixed_means, aligned_covs, verbose)
 
     if R is not None:
         raise NotImplementedError("mixing matrix R is not yet implemented")
@@ -70,25 +75,33 @@ def XDGMM(X, Xcov, n_components, n_iter=100, tol=1E-5, Nthreads=1, R=None,
     # this doesn't take into account errors, but is a fast first-guess
     if model.V is None:
         t0 = time()
-        gmm = GMM(model.n_components, n_iter=init_n_iter, covariance_type='full').fit(X)
+        if (fixed_means is None) & (aligned_covs is None):
+            gmm = GMM(model.n_components, n_iter=init_n_iter,
+                      covariance_type='full').fit(X)
+        else:
+            gmm = constrained_GMM(X, model.n_components, init_n_iter,
+                                  fixed_means, aligned_covs)
         model.mu = gmm.means_
         model.alpha = gmm.weights_
         model.V = gmm.covars_
-
+        model.initial_logL = model.logLikelihood(X, Xcov)
         if model.verbose:
             print 'Initalization done in %.2g sec' % (time() - t0)
+            print 'Initial Log Likelihood: ', model.initial_logL
 
-    logL = model.logL(X, Xcov)
-
+    logL = -np.inf
     for i in range(model.n_iter):
         t0 = time()
         model = _EMstep(model, X, Xcov)
-        logL_next = model.logL(X, Xcov)
+        logL_next = model.logLikelihood(X, Xcov)
         t1 = time()
 
         if model.verbose:
             print "%i: log(L) = %.5g" % (i + 1, logL_next)
             print "    (%.2g sec)" % (t1 - t0)
+
+        model.prev_logL = logL
+        model.logL = logL_next
 
         if logL_next < logL + model.tol:
             break
@@ -106,14 +119,18 @@ def _EMstep(model, X, Xcov):
     w_m = X - model.mu
     T = Xcov + model.V
 
+    # Estep
     if model.Nthreads > 1:
         q, b, B = _Estep_multi(model, T, w_m, X)
     elif model.Nthreads == 1:
         q, b, B = _Estep((T, w_m, X, model, model.n_samples))
     else:
         assert False, 'Number of threads must be greater than 1.'
+        
+    # M step
+    model = _Mstep(model, q, b, B)
 
-    return _Mstep(model, q, b, B)
+    return model
 
 def _Estep((T, w_m, X, model, n_samples)):
     """
@@ -183,13 +200,26 @@ def _Mstep(model, q, b, B):
 
     # update mu
     model.mu = np.sum(q[:, :, np.newaxis] * b, 0) / qj[:, np.newaxis]
+    if model.fixed_means is not None:
+        ind = model.fixed_means < np.inf
+        model.mu[ind] = model.fixed_means[ind]
 
     # update V
     m_b = model.mu - b
     tmp = m_b[:, :, np.newaxis, :] * m_b[:, :, :, np.newaxis]
     tmp += B
     tmp *= q[:, :, np.newaxis, np.newaxis]
-    model.V = (tmp.sum(0) + model.w[np.newaxis, :, :]) / (qj[:, np.newaxis, np.newaxis] + 1)
+    model.V = (tmp.sum(0) + model.w[np.newaxis, :, :]) / \
+        (qj[:, np.newaxis, np.newaxis] + 1)
+
+    # axis align covs if desired
+    if model.aligned_covs is not None:
+        for info in model.aligned_covs:
+            c, inds = zip(info)
+            s = model.V[c, inds, inds]
+            model.V[c, inds, :] = 0.0
+            model.V[c, :, inds] = 0.0
+            model.V[c, inds, inds] = s
 
     return model
 
@@ -197,13 +227,16 @@ class xd_model(object):
     """
     Class to store all things pertinent to the XD model. 
     """
-    def __init__(self, xshape, n_components, n_iter, tol, w, Nthreads, verbose):
+    def __init__(self, xshape, n_components, n_iter, tol, w, Nthreads,
+                 fixed_means, aligned_covs, verbose):
         self.n_samples = xshape[0]
         self.n_features = xshape[1]
         self.n_components = n_components
         self.n_iter = n_iter
         self.tol = tol
         self.Nthreads = Nthreads
+        self.fixed_means = fixed_means
+        self.aligned_covs = aligned_covs
         self.verbose = verbose
 
         self.V = None
@@ -230,7 +263,8 @@ class xd_model(object):
         X: array_like
             Input data. shape = (n_samples, n_features)
         Xcov: array_like
-            Covariance of input data.  shape = (n_samples, n_features, n_features)
+            Covariance of input data.  shape = (n_samples, n_features,
+            n_features)
 
         Returns
         -------
@@ -250,7 +284,7 @@ class xd_model(object):
 
         return log_multivariate_gaussian(X, self.mu, T)
 
-    def logL(self, X, Xcov):
+    def logLikelihood(self, X, Xcov):
         """
         Compute the log-likelihood of data given the model
 
@@ -288,73 +322,35 @@ class xd_model(object):
 
         return draw.reshape(shape)
 
-    def posterior(self, X, Xcov, sample=True):
+    def posterior(self, X, Xcov):
         """
         Return the posterior mean and covariance given the xd model.
         """
         draw = None
-        post_mu = np.zeros_like(X.shape[0], self.alpha.shape, X.shape[1])
-        post_V = np.zeros_like(Xcov.shape[0], self.alpha.shape,
-                               Xcov.shape[1], Xcov.shape[2])
+        post_alpha = np.zeros((X.shape[0], self.alpha.size))
+        post_mu = np.zeros((X.shape[0], self.alpha.size, X.shape[1]))
+        post_V = np.zeros((Xcov.shape[0], self.alpha.size,
+                           Xcov.shape[1], Xcov.shape[2]))
 
         iV = np.zeros_like(self.V)
         for i in range(self.n_components):
             iV[i] = np.linalg.inv(self.V[i])
 
         for i in range(Xcov.shape[0]):
+            if i % 100 == 0:
+                print i
             Xicov = np.linalg.inv(Xcov[i])
             for j in range(self.n_components):
+                dlt = X[i] - self.mu[j]
+                convV = self.V[j] + Xcov[i]
+                iconvV = np.linalg.inv(convV) 
                 post_V[i, j] = np.linalg.inv(iV[j] + Xicov)
                 post_mu[i, j] = np.dot(iV[j], self.mu[j])
                 post_mu[i, j] += np.dot(Xicov, X[i])
                 post_mu[i, j] = np.dot(post_V[i, j], post_mu[i, j])
+                post_alpha[i, j] = np.dot(np.dot(dlt.T, iconvV), dlt)
+                post_alpha[i, j] = np.exp(-0.5 * post_alpha[i, j])
+                post_alpha[i, j] /= np.sqrt(2 * np.pi * np.linalg.det(convV))
+            post_alpha[i] /= post_alpha[i].sum()
 
-if __name__ == '__main__':
-
-    from matplotlib import use; use('Agg')
-    from utils import fetch_mixed_epoch
-    
-    import os
-    import matplotlib.pyplot as pl
-
-    epoch = 10
-    single, coadd = fetch_mixed_epoch(epoch)
-
-    psfmags = np.vstack([single['psfmag_' + f] - 
-                         single['extinction_' + f] for f in 'ugriz']).T
-    psfmagerrs = np.vstack([single['psfmagerr_' + f] for f in 'ugriz']).T
-    modelmags = np.vstack([single['modelmag_' + f] -
-                           single['extinction_' + f]for f in 'ugriz']).T
-    modelmagerrs = np.vstack([single['modelmagerr_' + f] for f in 'ugriz']).T
-    
-    X = np.hstack((psfmags, modelmags))
-    Xerr = np.hstack((psfmagerrs, modelmagerrs))
-
-    W = np.zeros((10, X.shape[1]))
-    W[0, 2] = 1.
-    for i in range(1, 6):
-        W[i, i - 1] = 1
-        W[i, i + 4] = -1
-    for i in range(6, 10):
-        W[i, i - 1] = 1
-        W[i, i] = -1
-
-    X = np.dot(X, W.T)
-    Xcov = np.zeros(Xerr.shape + Xerr.shape[-1:])
-    Xcov[:, range(Xerr.shape[1]), range(Xerr.shape[1])] = Xerr ** 2
-    Xcov = np.tensordot(np.dot(Xcov, W.T), W, (-2, -1))
-
-    if False:
-        w = np.ones(X.shape[1]) * np.inf
-        for i in range(X.shape[0]):
-            w = np.minimum(w, np.diag(Xcov[i]))
-        w /= 10.
-    else:
-        w = None
-
-    xd = XDGMM(X, Xcov, 32, n_iter=40, w=w, Nthreads=10, verbose=True)
-
-    import cPickle
-    f=open(os.environ['sgdata'] + 'xd_32_%d.pkl' % epoch, 'wb')
-    cPickle.dump(xd, f)
-    f.close()
+        return post_alpha, post_mu, post_V

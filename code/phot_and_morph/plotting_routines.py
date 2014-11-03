@@ -4,10 +4,68 @@
 # Author - Ross Fadely
 #
 from matplotlib import use; use('Agg')
-from utils import fetch_mixed_epoch
+from utils import fetch_mixed_epoch, fetch_prepped_s82data
+from xd import xd_model
 
+import os
+import cPickle
 import numpy as np
 import matplotlib.pyplot as pl
+
+def cmd_plot(cmd1, cmd2, titles, fname):
+    """
+    Plot the cmd for two different datasets.
+    """
+    xmn, xmx = cmd1[:, 0].min(), cmd1[:, 0].max()
+    ymn, ymx = cmd1[:, 1].max(), cmd1[:, 1].min()
+    a, fs = 0.75, 3
+    f = pl.figure(figsize=(2 * fs, fs))
+    pl.subplot(121)
+    pl.scatter(cmd1[:, 0], cmd1[:, 1], marker='o', color='k', alpha=a)
+    pl.xlim(xmn, xmx)
+    pl.ylim(ymn, ymx)
+    pl.title(titles[0])
+    pl.subplot(122)
+    pl.scatter(cmd2[:, 0], cmd2[:, 1], marker='o', color='k', alpha=a)
+    pl.xlim(xmn, xmx)
+    pl.ylim(ymn, ymx)
+    pl.title(titles[1])
+    f.savefig(fname)
+
+def s82_compare(data, post, s82, name, lim=np.array([0.025, 0.975]),
+                plotdir='../../plots/phot_and_morph/'):
+    """
+    Plot the ugriz comparison to Stripe 82 data.
+    """
+    bands = 'ugriz'
+    fs = 5
+    mn, mx = 18., 24
+    f = pl.figure(figsize=(5 * fs, 2 * fs))
+    for i in range(5):
+        pl.subplot(2, 5, i + 1)
+        vs = np.sort(data[:, i])
+        #mn, mx = vs[lim[0] * vs.size], vs[lim[1] * vs.size] 
+        pl.plot(data[:, i], s82[:, i], 'k.', alpha=0.5)
+        pl.plot([mn, mx], [mn, mx], 'r', lw=2)
+        pl.xlim(mn, mx)
+        pl.ylim(mn, mx)
+        pl.title(bands[i], fontsize=20)
+        pl.xlabel('Single Epoch')
+        if i == 0:
+            pl.ylabel('Coadd')
+    for i in range(5):
+        pl.subplot(2, 5, i + 6)
+        vs = np.sort(data[:, i])
+        #mn, mx = vs[lim[0] * vs.size], vs[lim[1] * vs.size]
+        pl.plot(post[:, i], s82[:, i], 'k.', alpha=0.5)
+        pl.plot([mn, mx], [mn, mx], 'r', lw=2)
+        pl.xlim(mn, mx)
+        pl.ylim(mn, mx)
+        pl.title(bands[i], fontsize=20)
+        pl.xlabel('XD Posterior')
+        if i == 0:
+            pl.ylabel('Coadd')
+    f.savefig(plotdir + name)
 
 def plot_misclass(epoch=10, plotdir='../../plots/phot_and_morph/'):
     """
@@ -104,6 +162,169 @@ def one_epoch_class_check(epoch=10, plotdir='../../plots/phot_and_morph/'):
 
     f.savefig(plotdir + 'pminusm_changes_%d.png' % epoch)
 
+def psf_minus_model_hists(epoch, model, features, filters, fgal=0.5,
+                          idx=-1):
+    """
+    Plot the histogram of psf-model for the data and denoised data.
+    """
+    fs = 5
+    w = 0.1
+    nb = 50
+    mags = [19.5, 20.5, 21.5]
+
+    Xsingle, Xsinglecov = fetch_prepped_s82data(epoch, fgal, features, filters)
+
+    f = pl.figure(figsize=(3 * fs, fs))
+    for i in range(len(mags)):
+        ind = (Xsingle[:, 0] > mags[i] - w) & (Xsingle[:, 0] < mags[i] + w)
+        ind = ind & (Xsingle[:, idx] < 0.3)
+        a, m, v = model.posterior(Xsingle[ind], Xsinglecov[ind])
+        posts = np.zeros_like(Xsingle[ind])
+        for j in range(Xsingle[ind].shape[0]):
+            posts[j] = np.median(model.sample(a[j], m[j], v[j], size=1000),
+                                 axis=0)
+
+        print i, mags[i]
+        pl.subplot(1, 3, i + 1)
+        pl.hist(Xsingle[ind, idx], nb, alpha=0.3, color='k')
+        pl.hist(posts[:, idx], nb, alpha=0.3, color='r')
+        pl.title('$r=%0.1f$' % mags[i])
+        pl.xlim(-0.2, 0.2)
+        pl.xlabel('psf - model')
+    f.savefig('../../plots/phot_and_morph/foo.png')
+
 if __name__ == '__main__':
     #one_epoch_class_check()
-    plot_misclass()
+    #plot_misclass()
+
+    if True:
+        epoch = 3
+        N = epoch
+        K = 32
+        n_iter = 128
+        data = 's82'
+        factor = 1000.
+        features = ['psf_mag', 'model_colors', 'psf_minus_model']
+        filters = ['r', 'ur gr ri rz', 'gri']
+        message = 'pm_mc_pmm_r_all_gri'
+
+        fname = 'xdmodel_%s_%d_%d_%d_%s.pkl' % (data, N, K, n_iter, message)   
+        f = open(os.environ['sgdata'] + fname, 'rb')
+        model = cPickle.load(f)
+        f.close()
+ 
+        psf_minus_model_hists(epoch, model, features, filters, idx=-2)
+
+    if False:
+        epoch = 10
+        Xsingle, Xsinglecov = fetch_prepped_s82data(epoch)
+        Xcoadd, Xcoaddcov = fetch_prepped_s82data(epoch, use_single=False)
+
+        N = 5000
+        Xsingle = Xsingle[:N]
+        Xsinglecov = Xsinglecov[:N]
+        Xcoadd = Xcoadd[:N]
+        Xcoaddcov = Xcoaddcov[:N]
+        
+        f = open(os.environ['sgdata'] + 'xd_w_32_10_2.pkl')
+        model = cPickle.load(f)
+        f.close()
+        
+        post_alpha, post_mu, post_V = model.posterior(Xsingle, Xsinglecov)
+        posts = np.zeros_like(Xsingle)
+        for i in range(N):
+            posts[i] = np.median(model.sample(post_alpha[i], post_mu[i], post_V[i],
+                                              size=1000), axis=0)
+
+        Xsingle[:, 0] -= Xsingle[:, 3]  
+        single = np.vstack((Xsingle[:, 6] + Xsingle[:, 0], 
+                            Xsingle[:, 7] + Xsingle[:, 0],
+                            Xsingle[:, 0],
+                            Xsingle[:, 8] + Xsingle[:, 0],
+                            Xsingle[:, 9] + Xsingle[:, 0])).T
+
+        Xcoadd[:, 0] -= Xcoadd[:, 3]  
+        coadd = np.vstack((Xcoadd[:, 6] + Xcoadd[:, 0], 
+                            Xcoadd[:, 7] + Xcoadd[:, 0],
+                            Xcoadd[:, 0],
+                            Xcoadd[:, 8] + Xcoadd[:, 0],
+                            Xcoadd[:, 9] + Xcoadd[:, 0])).T
+
+        posts[:, 0] -= posts[:, 3]
+        post = np.vstack((posts[:, 6] + posts[:, 0], 
+                          posts[:, 7] + posts[:, 0],
+                          posts[:, 0],
+                          posts[:, 8] + posts[:, 0],
+                          posts[:, 9] + posts[:, 0])).T
+
+        s82_compare(single, post, coadd, 'foo.png', lim=np.array([0.025, 0.975]),
+                    plotdir='../../plots/phot_and_morph/')
+        """
+        f=pl.figure(figsize=(10,5))
+        pl.subplot(121)
+        pl.plot(Xsingle[:, 0], Xsingle[:, 2] - Xcoadd[:, 2], '.k')
+        pl.ylim(-.2,.2)
+        pl.subplot(122)
+        pl.plot(Xsingle[:, 0], posts[:, 2] - Xcoadd[:, 2], '.k')
+        pl.ylim(-.2,.2)
+        f.savefig('../../plots/phot_and_morph/foo.png')
+        """
+
+    if False:
+        try:
+            f = pf.__version__
+        except:
+            import pyfits as pf
+        f = pf.open(os.environ['sgdata'] + 'seg3_1.2.fits')
+        d = f[1].data
+        f.close()
+        ind = d.field('type') == 6
+        d = d[ind]
+
+        cmd = np.zeros((len(d.field(0)), 2))
+        g = d.field('psfmag_g') - d.field('extinction_g')
+        r = d.field('psfmag_r') - d.field('extinction_r')
+        cmd[:, 0] = g - r
+        cmd[:, 1] = r
+
+        f = open(os.environ['sgdata'] + 'xdmodel_dr10_30000_32_128.pkl')
+        model = cPickle.load(f)
+        f.close()
+
+        from utils import prep_data
+        X, Xcov = prep_data(d, ['psf_minus_model', 'colors'])
+        post_alpha, post_mu, post_V = model.posterior(X, Xcov)
+        posts = np.zeros_like(X)
+        for i in range(X.shape[0]):
+            posts[i] = np.median(model.sample(post_alpha[i], post_mu[i], post_V[i],
+                                              size=1000), axis=0)
+            if post_alpha[i].sum() != post_alpha[i].sum():
+                posts[i] = np.zeros_like(X[0])
+
+        r = posts[:, 0]
+        gmr = posts[:, 7]
+        pcmd = np.zeros((X.shape[0], 2))
+        pcmd[:, 0] = posts[:, 7]
+        pcmd[:, 1] = posts[:, 0]
+        
+        cmd_plot(cmd, pcmd, ['DR10', 'XD Post.'], os.environ['xdplots'] + 'foo.png')
+
+"""
+       single = np.vstack((Xsingle[:, 6] + Xsingle[:, 0],
+                            Xsingle[:, 7] + Xsingle[:, 0],
+                            Xsingle[:, 0],
+                            Xsingle[:, 8] + Xsingle[:, 0],
+                            Xsingle[:, 9] + Xsingle[:, 0])).T
+
+        coadd = np.vstack((Xcoadd[:, 6] + Xcoadd[:, 0],
+                            Xcoadd[:, 7] + Xcoadd[:, 0],
+                            Xcoadd[:, 0],
+                            Xcoadd[:, 8] + Xcoadd[:, 0],
+                            Xcoadd[:, 9] + Xcoadd[:, 0])).T
+
+        post = np.vstack((posts[:, 6] + posts[:, 0],
+                          posts[:, 7] + posts[:, 0],
+                          posts[:, 0],
+                          posts[:, 8] + posts[:, 0],
+                          posts[:, 9] + posts[:, 0])).T
+"""

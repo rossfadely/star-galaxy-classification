@@ -189,6 +189,8 @@ def fetch_epoch(epoch, kind, verbose=False):
         f.close()
 
     except:
+        print 'Matched fits for coadd doesn\'t exist, building...'
+
         # master
         f = pf.open(ddir + 's82coadd30k_%s_rfadely.fit' % kind)
         c = f[1].data
@@ -228,6 +230,120 @@ def fetch_epoch(epoch, kind, verbose=False):
         c = tbhdu.data
     
     return s, c
+
+def fetch_prepped_s82data(epoch, fgal=0.5, features=['psf_mag', 'model_colors',
+                                                     'psf_minus_model'],
+                          filters=['r', 'ur gr ri rz', 'r'], use_single=True):
+    """
+    Construct data matrix and cov.
+    """
+    single, coadd = fetch_mixed_epoch(epoch, fgal)
+
+    if use_single:
+        d = single
+    else:
+        d = coadd
+    return prep_data(d, features, filters)
+
+def fetch_prepped_dr10data(N, fgal=0.5, features=['psf_mag', 'model_colors',
+                                                  'psf_minus_model'],
+                           filters=['r', 'ur gr ri rz', 'r'],
+                           seed=1234):
+    """
+    Prepare SDSS DR10 data to run XD.
+    """
+    np.random.seed(seed)
+    ddir = os.environ['sgdata']
+    f = pf.open(ddir + 'dr10_30k_stars.fits')
+    d = f[1].data
+    f.close()
+    Xstar, Xstarcov = prep_data(d, features, filters)
+    f = pf.open(ddir + 'dr10_30k_gals.fits')
+    d = f[1].data
+    f.close()
+    Xgal, Xgalcov = prep_data(d, features, filters)
+
+    Nmax = np.minimum(Xstar.shape[0], Xgal.shape[0])
+    assert N <= Nmax, 'Not enough data for request'
+
+    Ngal = np.round(N * fgal).astype(np.int)
+    Nstar = N - Ngal
+    ind = np.random.permutation(Xgal.shape[0])[:Ngal]
+    Xgal = Xgal[ind]
+    Xgalcov = Xgalcov[ind]
+    ind = np.random.permutation(Xstar.shape[0])[:Nstar]
+    Xstar = Xstar[ind]
+    Xstarcov = Xstarcov[ind]
+
+    X = np.vstack((Xgal, Xstar))
+    Xcov = np.vstack((Xgalcov, Xstarcov))
+    ind = np.random.permutation(X.shape[0])
+    X = X[ind]
+    Xcov = Xcov[ind]
+    return X, Xcov
+
+def make_W_matrix(features, filters, odim):
+    """
+    Construct the mixing matrix for the set of features.
+    """
+    ref = {'u':0, 'g':1, 'r':2, 'i':3, 'z':4}
+    W = np.zeros((1, odim))
+    idx = 0
+    for i, feature in enumerate(features):
+        # begin spaghetti code
+        if 'psf' in feature:
+            ind = 0
+        else:
+            ind = 5
+
+        if 'mag' in feature:
+            for f in filters[i]:
+                W = np.vstack((W, np.zeros((1, odim))))
+                W[idx, ind + ref[f]] = 1.
+                idx += 1
+
+        if 'colors' in feature:
+            filts = filters[i].split()
+            for f in filts:
+                W = np.vstack((W, np.zeros((1, odim))))
+                W[idx, ind + ref[f[0]]] = 1.
+                W[idx, ind + ref[f[1]]] = -1.
+                idx += 1
+        
+        if 'minus' in feature:
+            for f in filters[i]:
+                W = np.vstack((W, np.zeros((1, odim))))
+                W[idx, ref[f]] = 1.
+                W[idx, 5 + ref[f]] = -1.
+                idx += 1
+            
+    return W[:-1]
+
+def prep_data(d, features, filters=None):
+    """
+    Return the prepared data.
+    """
+    if filters is None:
+        filters = ['ugriz' for i in range(len(features))]
+
+    psfmags = np.vstack([d['psfmag_' + f] -
+                         d['extinction_' + f] for f in 'ugriz']).T
+    psfmagerrs = np.vstack([d['psfmagerr_' + f] for f in 'ugriz']).T
+    modelmags = np.vstack([d['modelmag_' + f] -
+                           d['extinction_' + f]for f in 'ugriz']).T
+    modelmagerrs = np.vstack([d['modelmagerr_' + f] for f in 'ugriz']).T
+
+    X = np.hstack((psfmags, modelmags))
+    Xerr = np.hstack((psfmagerrs, modelmagerrs))
+
+    W = make_W_matrix(features, filters, X.shape[1])
+
+    X = np.dot(X, W.T)
+    Xcov = np.zeros(Xerr.shape + Xerr.shape[-1:])
+    Xcov[:, range(Xerr.shape[1]), range(Xerr.shape[1])] = Xerr ** 2
+    Xcov = np.tensordot(np.dot(Xcov, W.T), W, (-2, -1))
+
+    return X, Xcov
 
 if __name__ == '__main__':
     import time
